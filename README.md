@@ -1,7 +1,8 @@
 # NetWorth
 
 A personal net-worth tracker in Philippine pesos. Cash, investments, property
-and debt on one page, with month-by-month history.
+and debt on one page, with month-by-month history, a savings goal, an activity
+log and CSV export.
 
 Next.js (App Router) · Supabase Postgres + Auth · TypeScript.
 The visual design is the **Broadsheet** design system, vendored unchanged in
@@ -53,16 +54,22 @@ Screenshots from the browser suites land in `scripts/screenshots/`.
 
 ```
 app/
-  (app)/            authenticated area — dashboard, category, history
+  (app)/            authenticated area — dashboard, category, history, goal
   actions/          Server Actions (all mutations)
+  export/           CSV download endpoint (GET; reads nothing but your own)
   login/ signup/    split-screen auth
   auth/             confirmation callback + POST sign-out
-components/         Header, ItemModal, ThemeProvider, EmptyState
+  icon.svg          the mark, as a favicon
+components/         Header, ItemModal, Logo, GoalProgress, InsightStrip,
+                    ActivityFeed, ExportLinks, ThemeProvider, EmptyState
 lib/
   supabase/         browser, server and proxy clients
   money.ts          integer-centavo parsing and formatting
   chart.ts          SVG path maths, guarded for empty data
   dates.ts          everything in Asia/Manila
+  goals.ts          progress, trend rate and arrival projection
+  insights.ts       derived observations about a portfolio
+  csv.ts            RFC 4180 quoting + formula-injection guard
   data.ts           server-side reads + snapshot recording
 supabase/migrations/  schema, grants, RLS policies
 _prototype/         the original Claude Design export, kept for reference
@@ -90,6 +97,32 @@ today's totals, which for a financial record is worse than showing nothing.
 
 **Dates are Asia/Manila.** A snapshot month is a calendar month there — keying
 off UTC would file an item added at 07:00 on the 1st into the previous month.
+
+**Projections refuse to guess.** A goal's arrival date is extrapolated from
+the user's own recorded readings, and every function in `lib/goals.ts` returns
+`null` rather than a number when the data cannot support one — fewer than two
+readings, a flat trend, a trend moving away from the target, or a horizon past
+50 years. The UI renders those nulls as prose. Progress is measured from the
+earliest reading, not from zero: someone who started tracking at ₱2M with a
+₱5M target is a third of the way there at ₱3M, not 60%.
+
+**Observations state facts, never advice.** `lib/insights.ts` reports things
+the user can verify against their own list ("Property is 88% of your assets").
+It has no knowledge of anyone's circumstances, so it never recommends — a
+concentrated portfolio is reported neutrally, because one house on purpose is
+not a mistake.
+
+**The activity log is append-only and denormalised.** `authenticated` is
+granted `select, insert` and nothing else on `item_events`, and there are no
+update or delete policies — an audit trail its own subject can rewrite is not
+one. Item names and values are copied in at write time rather than joined,
+because the log must survive the item being deleted, which is precisely the
+event most worth explaining.
+
+**CSV export guards against formula injection.** Excel, Sheets and LibreOffice
+all evaluate a cell beginning `=`, `+`, `-` or `@`, so those are prefixed with
+an apostrophe — except plain signed numbers, which are exempted so a negative
+net worth still sums as a number rather than landing as text.
 
 ## Deploying to hosted Supabase
 

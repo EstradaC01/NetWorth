@@ -1,5 +1,11 @@
 import { redirect } from 'next/navigation'
-import { getItems, getSnapshots, recordCurrentSnapshot, requireUser } from '@/lib/data'
+import {
+  getGoal,
+  getItems,
+  getSnapshots,
+  recordCurrentSnapshot,
+  requireUser,
+} from '@/lib/data'
 import { Dashboard } from './dashboard'
 
 export const metadata = { title: 'Dashboard · NetWorth' }
@@ -14,7 +20,8 @@ export default async function DashboardPage() {
   // in which they only looked would leave a gap in their history.
   if (items.length > 0) await recordCurrentSnapshot(user.id, items)
 
-  const snapshots = await getSnapshots()
+  // After the snapshot write, so the chart includes the reading just taken.
+  const [snapshots, goal] = await Promise.all([getSnapshots(), getGoal()])
 
-  return <Dashboard items={items} snapshots={snapshots} />
+  return <Dashboard items={items} snapshots={snapshots} goal={goal} />
 }

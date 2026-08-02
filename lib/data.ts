@@ -2,7 +2,8 @@ import 'server-only'
 
 import { createClient } from '@/lib/supabase/server'
 import { currentMonthKey } from '@/lib/dates'
-import { totalsFrom, type Item, type Snapshot } from '@/lib/types'
+import type { Goal } from '@/lib/goals'
+import { totalsFrom, type Item, type ItemEvent, type Snapshot } from '@/lib/types'
 
 /**
  * Server-side reads. Every query runs under the caller's session, so Row
@@ -42,6 +43,42 @@ export async function getSnapshots(): Promise<Snapshot[]> {
 
   if (error) throw new Error(`Could not load history: ${error.message}`)
   return (data ?? []) as Snapshot[]
+}
+
+/**
+ * The user's goal, or null if they have not set one.
+ *
+ * `maybeSingle` rather than `single`: no goal is the normal state for a new
+ * account, and `single` treats zero rows as an error to be thrown.
+ */
+export async function getGoal(): Promise<Goal | null> {
+  const supabase = await createClient()
+  const { data, error } = await supabase
+    .from('goals')
+    .select('target_cents, target_date, note')
+    .maybeSingle()
+
+  if (error) throw new Error(`Could not load your goal: ${error.message}`)
+  return (data as Goal | null) ?? null
+}
+
+/**
+ * Recent activity, newest first.
+ *
+ * Bounded by `limit` because the log grows without end — an account editing
+ * daily for two years has ~700 rows, and neither the history page nor the
+ * response payload benefits from all of them.
+ */
+export async function getItemEvents(limit = 60): Promise<ItemEvent[]> {
+  const supabase = await createClient()
+  const { data, error } = await supabase
+    .from('item_events')
+    .select('id, item_id, kind, cat, item_name, before_cents, after_cents, created_at')
+    .order('created_at', { ascending: false })
+    .limit(limit)
+
+  if (error) throw new Error(`Could not load activity: ${error.message}`)
+  return (data ?? []) as ItemEvent[]
 }
 
 /**

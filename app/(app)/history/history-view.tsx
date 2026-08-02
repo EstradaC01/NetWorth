@@ -2,11 +2,19 @@
 
 import { useMemo, useState } from 'react'
 import { useTheme } from '@/components/theme'
+import { ActivityFeed } from '@/components/activity-feed'
+import { ExportLinks } from '@/components/export-links'
 import { CATS, PALETTE } from '@/lib/categories'
 import { fmt, short } from '@/lib/money'
 import { extent, gridLines, path } from '@/lib/chart'
 import { formatMonthLabel, monthsBetween } from '@/lib/dates'
-import { totalsFrom, totalsFromSnapshot, type Item, type Snapshot } from '@/lib/types'
+import {
+  totalsFrom,
+  totalsFromSnapshot,
+  type Item,
+  type ItemEvent,
+  type Snapshot,
+} from '@/lib/types'
 
 const MONO = "'IBM Plex Mono',monospace"
 const W = 1000
@@ -23,9 +31,11 @@ const ROWS: { id: SeriesKey; name: string }[] = [
 export function HistoryView({
   items,
   snapshots,
+  events,
 }: {
   items: Item[]
   snapshots: Snapshot[]
+  events: ItemEvent[]
 }) {
   const { theme } = useTheme()
   const P = PALETTE[theme]
@@ -354,6 +364,11 @@ export function HistoryView({
           </div>
         </>
       )}
+
+      {/* Both sit outside the `enoughData` branch: a user with a single
+          month still has edits worth reviewing and data worth exporting. */}
+      <ActivityFeed events={events} />
+      <ExportLinks />
     </div>
   )
 }

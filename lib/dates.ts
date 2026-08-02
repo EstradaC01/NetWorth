@@ -41,6 +41,23 @@ export function formatMonthLabel(iso: string | Date): string {
   return MONTH_YEAR.format(new Date(iso))
 }
 
+const MONTH_FULL_YEAR = new Intl.DateTimeFormat('en-GB', {
+  timeZone: TZ,
+  month: 'short',
+  year: 'numeric',
+})
+
+/**
+ * `Dec 2028` — goal deadlines.
+ *
+ * Deliberately not `formatMonthLabel`'s two-digit year: "Dec 28" reads as the
+ * 28th of December at least as readily as December 2028, and a goal date is
+ * exactly where that confusion costs the user something.
+ */
+export function formatTargetMonth(iso: string | Date): string {
+  return MONTH_FULL_YEAR.format(new Date(iso))
+}
+
 /** `2 August 2026` — the dashboard's "as of" line. */
 export function formatLongDate(iso: string | Date): string {
   return LONG_DATE.format(new Date(iso))

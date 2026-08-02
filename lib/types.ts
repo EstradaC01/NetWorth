@@ -18,6 +18,38 @@ export type Snapshot = {
   liab_cents: number
 }
 
+export type ItemEventKind = 'add' | 'edit' | 'delete'
+
+/**
+ * One entry in the append-only activity log. `before_cents` is null on an
+ * add and `after_cents` is null on a delete — the nulls carry meaning, so
+ * neither is defaulted to zero.
+ */
+export type ItemEvent = {
+  id: string
+  item_id: string
+  kind: ItemEventKind
+  cat: CategoryId
+  item_name: string
+  before_cents: number | null
+  after_cents: number | null
+  created_at: string
+}
+
+/**
+ * The signed effect of an event on net worth.
+ *
+ * The nulls coalesce to zero here and only here: on an add there was nothing
+ * before, and on a delete there is nothing after, so zero is the arithmetically
+ * correct stand-in for that side of the subtraction — unlike in display code,
+ * where a null must stay visible as "—".
+ */
+export function eventDelta(e: ItemEvent): number {
+  const change = (e.after_cents ?? 0) - (e.before_cents ?? 0)
+  // A liability growing by ₱100 moves net worth down by ₱100.
+  return e.cat === 'liab' ? -change : change
+}
+
 /** Category totals in centavos, plus the derived asset/net figures. */
 export type Totals = {
   liquid: number

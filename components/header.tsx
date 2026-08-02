@@ -4,11 +4,23 @@ import Link from 'next/link'
 import { usePathname } from 'next/navigation'
 import { ThemeToggleIcon } from '@/components/theme-toggle'
 import { useItemModal } from '@/components/item-modal-context'
+import { Logo } from '@/components/logo'
+
+const NAV = [
+  { href: '/dashboard', label: 'Dashboard' },
+  { href: '/history', label: 'History' },
+  { href: '/goal', label: 'Goal' },
+] as const
 
 export function Header() {
   const pathname = usePathname()
   const { openAdd } = useItemModal()
-  const onHistory = pathname.startsWith('/history')
+
+  // /dashboard is the fallback for anything not otherwise matched — notably
+  // /category/*, which is reached from the dashboard and belongs to it.
+  const active =
+    NAV.find((n) => n.href !== '/dashboard' && pathname.startsWith(n.href))
+      ?.href ?? '/dashboard'
 
   return (
     <div
@@ -41,14 +53,9 @@ export function Header() {
             color: 'inherit',
           }}
         >
-          <div
-            style={{
-              width: 10,
-              height: 10,
-              background: 'var(--color-accent)',
-              borderRadius: 'var(--radius-sm)',
-            }}
-          />
+          <span style={{ color: 'var(--color-accent)' }}>
+            <Logo size={24} />
+          </span>
           <div style={{ fontSize: 18, letterSpacing: '-.02em' }}>NetWorth</div>
         </Link>
 
@@ -60,30 +67,24 @@ export function Header() {
             minWidth: 0,
           }}
         >
-          <Link
-            href="/dashboard"
-            aria-current={!onHistory ? 'page' : undefined}
-            className="nw-hover-accent"
-            style={{
-              padding: '7px 11px',
-              fontSize: 15,
-              color: onHistory ? 'var(--nw-muted)' : 'var(--nw-fg)',
-            }}
-          >
-            Dashboard
-          </Link>
-          <Link
-            href="/history"
-            aria-current={onHistory ? 'page' : undefined}
-            className="nw-hover-accent"
-            style={{
-              padding: '7px 11px',
-              fontSize: 15,
-              color: onHistory ? 'var(--nw-fg)' : 'var(--nw-muted)',
-            }}
-          >
-            History
-          </Link>
+          {NAV.map((n) => {
+            const on = active === n.href
+            return (
+              <Link
+                key={n.href}
+                href={n.href}
+                aria-current={on ? 'page' : undefined}
+                className="nw-hover-accent"
+                style={{
+                  padding: '7px 11px',
+                  fontSize: 15,
+                  color: on ? 'var(--nw-fg)' : 'var(--nw-muted)',
+                }}
+              >
+                {n.label}
+              </Link>
+            )
+          })}
 
           <ThemeToggleIcon />
 

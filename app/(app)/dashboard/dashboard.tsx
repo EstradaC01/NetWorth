@@ -1,14 +1,19 @@
 'use client'
 
 import { useMemo, useState } from 'react'
+import Link from 'next/link'
 import { useRouter } from 'next/navigation'
 import { useTheme } from '@/components/theme'
 import { useItemModal } from '@/components/item-modal-context'
 import { EmptyState } from '@/components/empty-state'
+import { GoalProgress } from '@/components/goal-progress'
+import { InsightStrip } from '@/components/insight-strip'
 import { ASSET_CATS, CATS, PALETTE } from '@/lib/categories'
 import { fmt, pctChange } from '@/lib/money'
 import { extent, gridLines, path, xAt } from '@/lib/chart'
 import { formatLongDate, formatMonthLabel, monthsBetween } from '@/lib/dates'
+import { buildInsights } from '@/lib/insights'
+import type { Goal } from '@/lib/goals'
 import { totalsFrom, totalsFromSnapshot, type Item, type Snapshot } from '@/lib/types'
 
 const MONO = "'IBM Plex Mono',monospace"
@@ -25,9 +30,11 @@ const RANGES = [
 export function Dashboard({
   items,
   snapshots,
+  goal,
 }: {
   items: Item[]
   snapshots: Snapshot[]
+  goal: Goal | null
 }) {
   const { theme } = useTheme()
   const P = PALETTE[theme]
@@ -38,6 +45,10 @@ export function Dashboard({
   const [hover, setHover] = useState(-1)
 
   const totals = useMemo(() => totalsFrom(items), [items])
+  const insights = useMemo(
+    () => buildInsights(items, snapshots),
+    [items, snapshots]
+  )
 
   // Only real recorded months are charted — nothing is synthesised.
   const series = useMemo(() => {
@@ -156,6 +167,31 @@ export function Dashboard({
           </div>
         )}
       </div>
+
+      {/* Goal sits directly under the headline figure: it reframes the number
+          above it, and is the first thing a user with a target looks for. */}
+      {goal ? (
+        <div
+          style={{
+            marginTop: 'clamp(26px,3.5vw,38px)',
+            paddingTop: 24,
+            borderTop: '1px solid var(--nw-line)',
+          }}
+        >
+          <GoalProgress
+            goal={goal}
+            currentNet={totals.net}
+            snapshots={snapshots}
+            compact
+          />
+        </div>
+      ) : (
+        <div style={{ marginTop: 18 }}>
+          <Link href="/goal" className="nw-hover-accent" style={{ fontSize: 14.5 }}>
+            Set a goal →
+          </Link>
+        </div>
+      )}
 
       {series.length >= 2 ? (
         <div style={{ marginTop: 'clamp(28px,4vw,46px)', position: 'relative' }}>
@@ -445,6 +481,8 @@ export function Dashboard({
           })}
         </div>
       </div>
+
+      <InsightStrip insights={insights} />
     </div>
   )
 }
