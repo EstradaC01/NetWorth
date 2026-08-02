@@ -1,0 +1,537 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="stylesheet" href="_ds/broadsheet-be3679a4-66fd-42cf-ae29-a79888d0b6f8/styles.css">
+<script src="_ds/broadsheet-be3679a4-66fd-42cf-ae29-a79888d0b6f8/_ds_bundle.js"></script>
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&display=swap">
+<style>
+:root{
+--nw-bg:var(--color-bg);--nw-surface:#ffffff;--nw-fg:var(--color-text);
+--nw-muted:color-mix(in srgb, var(--color-text) 58%, transparent);
+--nw-faint:color-mix(in srgb, var(--color-text) 34%, transparent);
+--nw-line:color-mix(in srgb, var(--color-text) 12%, transparent);
+--nw-hair:color-mix(in srgb, var(--color-text) 7%, transparent);
+}
+[data-nw-theme="dark"]{
+--nw-bg:#191817;--nw-surface:#211f1e;--nw-fg:#f3f2f2;
+--nw-muted:color-mix(in srgb, #f3f2f2 58%, transparent);
+--nw-faint:color-mix(in srgb, #f3f2f2 32%, transparent);
+--nw-line:color-mix(in srgb, #f3f2f2 14%, transparent);
+--nw-hair:color-mix(in srgb, #f3f2f2 8%, transparent);
+}
+html,body{margin:0;background:var(--nw-bg);color:var(--nw-fg);font-family:var(--font-body)}
+*{box-sizing:border-box}
+a{color:var(--color-accent);text-decoration:none}
+a:hover{color:var(--color-accent-600)}
+button,input,select{font-family:inherit;color:inherit}
+button:focus-visible,input:focus-visible,select:focus-visible{outline:2px solid var(--color-accent);outline-offset:2px}
+@keyframes nwIn{from{opacity:0;transform:translateY(6px)}to{opacity:1}}
+@keyframes nwFade{from{opacity:0}to{opacity:1}}
+@keyframes nwPop{from{opacity:0;transform:translateY(10px)}to{opacity:1}}
+</style>
+</helmet>
+<div data-nw-theme="{{ theme }}" style="min-height:100vh;background:var(--nw-bg);color:var(--nw-fg);transition:background .25s ease,color .25s ease">
+
+<sc-if value="{{ isLogin }}" hint-placeholder-val="{{ false }}">
+<div style="min-height:100vh;display:grid;grid-template-columns:repeat(auto-fit,minmax(340px,1fr));animation:nwFade .3s ease both">
+<div style="padding:clamp(40px,7vw,88px) clamp(24px,6vw,72px);display:flex;flex-direction:column;justify-content:space-between;gap:48px;border-right:1px solid var(--nw-hair)">
+<div style="display:flex;align-items:center;gap:10px">
+<div style="width:11px;height:11px;background:var(--color-accent);border-radius:var(--radius-sm)"></div>
+<div style="font-size:19px;letter-spacing:-.02em">NetWorth</div>
+</div>
+<div>
+<div style="font-family:'IBM Plex Mono',monospace;font-size:11px;letter-spacing:.16em;text-transform:uppercase;color:var(--nw-faint)">Every peso, one page</div>
+<h1 style="font-size:clamp(34px,5.2vw,58px);line-height:1.06;letter-spacing:-.02em;margin:18px 0 0;max-width:12ch">Know exactly where you stand.</h1>
+<p style="font-size:17px;line-height:1.5;color:var(--nw-muted);margin:20px 0 0;max-width:34ch;text-wrap:pretty">Cash, investments, property and debt — totalled in pesos, tracked month by month.</p>
+</div>
+<div style="font-family:'IBM Plex Mono',monospace;font-size:11px;letter-spacing:.1em;color:var(--nw-faint)">₱ · MANILA · 2026</div>
+</div>
+<div style="padding:clamp(40px,7vw,88px) clamp(24px,6vw,72px);display:flex;flex-direction:column;justify-content:center">
+<div style="width:100%;max-width:360px">
+<h2 style="font-size:28px;letter-spacing:-.02em;margin:0">Sign in</h2>
+<p style="color:var(--nw-muted);font-size:15px;margin:10px 0 30px">Demo account — any password works.</p>
+<div style="display:flex;flex-direction:column;gap:18px">
+<label style="display:block">
+<div style="font-family:'IBM Plex Mono',monospace;font-size:10.5px;letter-spacing:.14em;text-transform:uppercase;color:var(--nw-faint);margin-bottom:7px">Email</div>
+<input value="{{ email }}" onChange="{{ onEmail }}" type="email" placeholder="you@email.ph" style="width:100%;background:var(--nw-surface);border:1px solid var(--nw-line);border-radius:var(--radius-md);padding:12px 13px;font-size:15px;outline:none"></input>
+</label>
+<label style="display:block">
+<div style="font-family:'IBM Plex Mono',monospace;font-size:10.5px;letter-spacing:.14em;text-transform:uppercase;color:var(--nw-faint);margin-bottom:7px">Password</div>
+<input value="{{ pass }}" onChange="{{ onPass }}" type="password" placeholder="••••••••" style="width:100%;background:var(--nw-surface);border:1px solid var(--nw-line);border-radius:var(--radius-md);padding:12px 13px;font-size:15px;outline:none"></input>
+</label>
+</div>
+<sc-if value="{{ loginError }}">
+<div style="margin-top:14px;font-size:13.5px;color:var(--color-accent-2-600)">Enter an email and a password to continue.</div>
+</sc-if>
+<button onClick="{{ signIn }}" style="width:100%;margin-top:26px;background:var(--color-accent);color:#fff;border:0;border-radius:var(--radius-md);padding:13px;font-size:15.5px;cursor:pointer;transition:background .15s" style-hover="background:var(--color-accent-600)" style-active="background:var(--color-accent-700)">Sign in</button>
+<button onClick="{{ toggleTheme }}" style="margin-top:20px;background:none;border:0;padding:6px 0;font-size:13.5px;color:var(--nw-muted);cursor:pointer" style-hover="color:var(--color-accent)">{{ themeLabel }}</button>
+</div>
+</div>
+</div>
+</sc-if>
+
+<sc-if value="{{ isApp }}">
+<div>
+
+<div style="position:sticky;top:0;z-index:30;background:var(--nw-bg);border-bottom:1px solid var(--nw-hair)">
+<div style="max-width:1100px;margin:0 auto;padding:14px clamp(14px,4vw,40px);display:flex;align-items:center;gap:clamp(8px,2vw,20px);flex-wrap:wrap">
+<div style="display:flex;align-items:center;gap:9px;margin-right:auto">
+<div style="width:10px;height:10px;background:var(--color-accent);border-radius:var(--radius-sm)"></div>
+<div style="font-size:18px;letter-spacing:-.02em">NetWorth</div>
+</div>
+<div style="display:flex;gap:clamp(2px,1vw,4px);align-items:center;min-width:0">
+<button onClick="{{ goDash }}" style="background:none;border:0;padding:7px 11px;cursor:pointer;color:{{ dashColor }};font-size:15px;border-radius:var(--radius-md)" style-hover="color:var(--color-accent)">Dashboard</button>
+<button onClick="{{ goHist }}" style="background:none;border:0;padding:7px 11px;cursor:pointer;color:{{ histColor }};font-size:15px;border-radius:var(--radius-md)" style-hover="color:var(--color-accent)">History</button>
+<button onClick="{{ toggleTheme }}" title="{{ themeLabel }}" style="background:none;border:1px solid var(--nw-line);width:34px;height:34px;margin-left:6px;border-radius:var(--radius-md);cursor:pointer;font-size:13px;color:var(--nw-muted);display:flex;align-items:center;justify-content:center" style-hover="color:var(--color-accent);border-color:var(--color-accent)">{{ themeGlyph }}</button>
+<button onClick="{{ onAddGlobal }}" style="margin-left:6px;background:var(--color-accent);border:0;color:#fff;font-size:14px;padding:9px 15px;border-radius:var(--radius-md);cursor:pointer" style-hover="background:var(--color-accent-600)" style-active="background:var(--color-accent-700)">Add item</button>
+<button onClick="{{ signOut }}" style="background:none;border:0;padding:7px 9px;font-size:13.5px;color:var(--nw-faint);cursor:pointer;border-radius:var(--radius-md)" style-hover="color:var(--color-accent-2-600)">Sign out</button>
+</div>
+</div>
+</div>
+
+<div style="max-width:1100px;margin:0 auto;padding:clamp(28px,5vw,56px) clamp(16px,4vw,40px) 96px">
+
+<sc-if value="{{ isDash }}" hint-placeholder-val="{{ true }}">
+<div style="animation:nwIn .3s ease both">
+
+<div style="display:flex;align-items:baseline;gap:12px;flex-wrap:wrap">
+<div style="font-family:'IBM Plex Mono',monospace;font-size:11px;letter-spacing:.16em;text-transform:uppercase;color:var(--nw-faint)">Total net worth</div>
+<div style="font-family:'IBM Plex Mono',monospace;font-size:11px;letter-spacing:.1em;color:var(--nw-faint)">{{ asOf }}</div>
+</div>
+
+<div style="font-family:'IBM Plex Mono',monospace;font-weight:500;font-size:clamp(42px,9.5vw,94px);line-height:1;letter-spacing:-.045em;margin:16px 0 0">{{ netStr }}</div>
+
+<div style="display:flex;align-items:baseline;gap:10px;margin-top:14px;flex-wrap:wrap">
+<div style="font-family:'IBM Plex Mono',monospace;font-size:clamp(14px,2.5vw,16px);color:{{ deltaColor }}">{{ deltaStr }}</div>
+<div style="font-size:15px;color:var(--nw-muted)">past 12 months</div>
+</div>
+
+<div style="margin-top:clamp(28px,4vw,46px);position:relative">
+<div style="display:flex;justify-content:flex-end;gap:2px;margin-bottom:12px">
+<sc-for list="{{ ranges }}" as="r" hint-placeholder-count="3">
+<button onClick="{{ r.onClick }}" style="background:none;border:0;color:{{ r.color }};font-family:'IBM Plex Mono',monospace;font-size:11.5px;letter-spacing:.1em;padding:5px 10px;border-radius:var(--radius-md);cursor:pointer" style-hover="color:var(--color-accent)">{{ r.label }}</button>
+</sc-for>
+</div>
+
+<svg viewBox="0 0 1000 300" preserveAspectRatio="none" style="width:100%;height:clamp(180px,29vw,270px);display:block;overflow:visible">
+<sc-for list="{{ gridY }}" as="g" hint-placeholder-count="4">
+<line x1="0" y1="{{ g.y }}" x2="1000" y2="{{ g.y }}" stroke="{{ hairColor }}" stroke-width="1" vector-effect="non-scaling-stroke"></line>
+</sc-for>
+<path d="{{ netPath }}" fill="none" stroke="{{ netColor }}" stroke-width="2" vector-effect="non-scaling-stroke" stroke-linejoin="round" stroke-linecap="round"></path>
+<sc-if value="{{ hoverOn }}">
+<line x1="{{ hoverX }}" y1="0" x2="{{ hoverX }}" y2="300" stroke="{{ lineColor }}" stroke-width="1" vector-effect="non-scaling-stroke"></line>
+</sc-if>
+<rect x="0" y="0" width="1000" height="300" fill="transparent" onMouseMove="{{ onChartMove }}" onMouseLeave="{{ onChartLeave }}"></rect>
+</svg>
+<sc-if value="{{ hoverOn }}">
+<div style="position:absolute;top:30px;left:{{ hoverPct }};transform:translateX(-50%);pointer-events:none;background:var(--nw-surface);border:1px solid var(--nw-line);border-radius:var(--radius-md);padding:8px 11px;white-space:nowrap;box-shadow:var(--shadow-md)">
+<div style="font-family:'IBM Plex Mono',monospace;font-size:10px;letter-spacing:.12em;color:var(--nw-faint);text-transform:uppercase">{{ hoverMonth }}</div>
+<div style="font-family:'IBM Plex Mono',monospace;font-size:16px;margin-top:3px">{{ hoverVal }}</div>
+</div>
+</sc-if>
+<div style="display:flex;justify-content:space-between;margin-top:10px;font-family:'IBM Plex Mono',monospace;font-size:10.5px;letter-spacing:.1em;color:var(--nw-faint)">
+<div>{{ xFirst }}</div><div>{{ xMid }}</div><div>{{ xLast }}</div>
+</div>
+</div>
+
+<div style="margin-top:clamp(36px,5vw,60px)">
+<div style="font-family:'IBM Plex Mono',monospace;font-size:11px;letter-spacing:.16em;text-transform:uppercase;color:var(--nw-faint);margin-bottom:14px">Composition</div>
+<div style="display:flex;height:8px;gap:2px">
+<sc-for list="{{ assetCats }}" as="c" hint-placeholder-count="3">
+<div style="flex:0 0 auto;width:{{ c.barW }};background:{{ c.color }};border-radius:var(--radius-sm);transition:width .5s cubic-bezier(.4,0,.2,1)"></div>
+</sc-for>
+</div>
+<div style="display:flex;height:4px;margin-top:5px">
+<div style="flex:0 0 auto;width:{{ liabBarW }};background:{{ liabColor }};border-radius:var(--radius-sm);opacity:.8;transition:width .5s cubic-bezier(.4,0,.2,1)"></div>
+</div>
+<div style="font-family:'IBM Plex Mono',monospace;font-size:10.5px;letter-spacing:.08em;color:var(--nw-faint);margin-top:8px">{{ liabBarStr }}</div>
+
+<div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(230px,1fr));gap:clamp(20px,3vw,36px);margin-top:clamp(28px,4vw,42px)">
+<sc-for list="{{ cats }}" as="c" hint-placeholder-count="4">
+<button onClick="{{ c.onOpen }}" style="text-align:left;background:none;border:0;border-top:1px solid var(--nw-line);padding:16px 0 0;cursor:pointer;color:inherit;transition:border-color .18s" style-hover="border-color:var(--color-accent)">
+<div style="display:flex;align-items:center;gap:8px">
+<div style="width:7px;height:7px;border-radius:var(--radius-sm);background:{{ c.color }}"></div>
+<div style="font-size:15px;color:var(--nw-muted)">{{ c.name }}</div>
+<div style="margin-left:auto;font-family:'IBM Plex Mono',monospace;font-size:11px;color:var(--nw-faint)">{{ c.count }}</div>
+</div>
+<div style="font-family:'IBM Plex Mono',monospace;font-size:clamp(21px,3.2vw,26px);letter-spacing:-.03em;margin-top:14px">{{ c.totalStr }}</div>
+<div style="font-family:'IBM Plex Mono',monospace;font-size:11.5px;color:var(--nw-faint);margin-top:8px">{{ c.pctStr }} of assets</div>
+</button>
+</sc-for>
+</div>
+</div>
+
+</div>
+</sc-if>
+
+<sc-if value="{{ isCat }}">
+<div style="animation:nwIn .28s ease both">
+<button onClick="{{ goDash }}" style="background:none;border:0;color:var(--nw-muted);font-size:14.5px;cursor:pointer;padding:0;margin-bottom:28px" style-hover="color:var(--color-accent)">← Dashboard</button>
+<div style="display:flex;align-items:flex-end;gap:20px;flex-wrap:wrap">
+<div>
+<div style="display:flex;align-items:center;gap:9px">
+<div style="width:8px;height:8px;border-radius:var(--radius-sm);background:{{ catColor }}"></div>
+<div style="font-family:'IBM Plex Mono',monospace;font-size:11px;letter-spacing:.16em;text-transform:uppercase;color:var(--nw-faint)">{{ catName }}</div>
+</div>
+<div style="font-family:'IBM Plex Mono',monospace;font-weight:500;font-size:clamp(32px,6.5vw,58px);line-height:1.05;letter-spacing:-.04em;margin-top:14px">{{ catTotalStr }}</div>
+<div style="font-size:15px;color:var(--nw-muted);margin-top:8px">{{ catSub }}</div>
+</div>
+<button onClick="{{ onAddInCat }}" style="margin-left:auto;background:none;border:1px solid var(--nw-line);color:var(--color-accent);font-size:14.5px;padding:9px 16px;border-radius:var(--radius-md);cursor:pointer" style-hover="border-color:var(--color-accent);background:color-mix(in srgb, var(--color-accent) 8%, transparent)">+ Add item</button>
+</div>
+
+<div style="margin-top:34px;border-top:1px solid var(--nw-line)">
+<sc-for list="{{ catItems }}" as="it" hint-placeholder-count="4">
+<div style="display:flex;align-items:center;gap:14px;flex-wrap:wrap;padding:18px 0;border-bottom:1px solid var(--nw-hair)">
+<div style="flex:1 1 160px;min-width:0">
+<div style="font-size:16.5px">{{ it.name }}</div>
+<div style="font-size:13.5px;color:var(--nw-faint);margin-top:3px">{{ it.notes }}</div>
+</div>
+<div style="font-family:'IBM Plex Mono',monospace;font-size:19px;letter-spacing:-.025em;min-width:130px;text-align:right;color:{{ it.valColor }}">{{ it.valStr }}</div>
+<div style="font-family:'IBM Plex Mono',monospace;font-size:11px;letter-spacing:.08em;color:var(--nw-faint);min-width:84px;text-align:right">{{ it.updated }}</div>
+<div style="display:flex;gap:2px">
+<button onClick="{{ it.onEdit }}" style="background:none;border:0;color:var(--nw-muted);font-size:13.5px;padding:6px 9px;border-radius:var(--radius-md);cursor:pointer" style-hover="color:var(--color-accent)">Edit</button>
+<button onClick="{{ it.onDelete }}" style="background:none;border:0;color:var(--nw-muted);font-size:13.5px;padding:6px 9px;border-radius:var(--radius-md);cursor:pointer" style-hover="color:var(--color-accent-2-600)">Delete</button>
+</div>
+</div>
+</sc-for>
+<sc-if value="{{ catEmpty }}">
+<div style="padding:46px 0;text-align:center;color:var(--nw-faint);font-size:15px">Nothing here yet.</div>
+</sc-if>
+</div>
+</div>
+</sc-if>
+
+<sc-if value="{{ isHist }}">
+<div style="animation:nwIn .28s ease both">
+<div style="font-family:'IBM Plex Mono',monospace;font-size:11px;letter-spacing:.16em;text-transform:uppercase;color:var(--nw-faint)">History · 18 months</div>
+<div style="display:flex;align-items:flex-end;gap:16px;flex-wrap:wrap;margin-top:14px">
+<div style="font-family:'IBM Plex Mono',monospace;font-weight:500;font-size:clamp(32px,6.5vw,58px);line-height:1.05;letter-spacing:-.04em">{{ netStr }}</div>
+<div style="font-family:'IBM Plex Mono',monospace;font-size:15.5px;color:{{ deltaColor }};padding-bottom:8px">{{ deltaStr }}</div>
+</div>
+
+<div style="display:flex;flex-wrap:wrap;gap:6px;margin-top:26px">
+<sc-for list="{{ legend }}" as="l" hint-placeholder-count="5">
+<button onClick="{{ l.onToggle }}" style="display:flex;align-items:center;gap:8px;background:none;border:1px solid {{ l.border }};color:{{ l.color }};font-size:13.5px;padding:7px 13px;border-radius:var(--radius-md);cursor:pointer;transition:all .15s" style-hover="border-color:var(--color-accent)">
+<span style="width:8px;height:8px;border-radius:var(--radius-sm);background:{{ l.dot }}"></span>{{ l.name }}
+</button>
+</sc-for>
+</div>
+
+<div style="margin-top:26px;position:relative">
+<svg viewBox="0 0 1000 420" preserveAspectRatio="none" style="width:100%;height:clamp(250px,45vh,420px);display:block;overflow:visible">
+<sc-for list="{{ gridYH }}" as="g" hint-placeholder-count="5">
+<line x1="0" y1="{{ g.y }}" x2="1000" y2="{{ g.y }}" stroke="{{ hairColor }}" stroke-width="1" vector-effect="non-scaling-stroke"></line>
+</sc-for>
+<sc-for list="{{ histSeries }}" as="s" hint-placeholder-count="3">
+<path d="{{ s.path }}" fill="none" stroke="{{ s.color }}" stroke-width="{{ s.w }}" stroke-dasharray="{{ s.dash }}" vector-effect="non-scaling-stroke" stroke-linejoin="round" stroke-linecap="round"></path>
+</sc-for>
+</svg>
+<div style="display:flex;justify-content:space-between;margin-top:10px;font-family:'IBM Plex Mono',monospace;font-size:10.5px;letter-spacing:.1em;color:var(--nw-faint)">
+<div>{{ xFirst }}</div><div>{{ xMid }}</div><div>{{ xLast }}</div>
+</div>
+<div style="position:absolute;left:0;top:-4px;font-family:'IBM Plex Mono',monospace;font-size:10.5px;color:var(--nw-faint)">{{ histMaxStr }}</div>
+</div>
+
+<div style="margin-top:44px;border-top:1px solid var(--nw-line)">
+<sc-for list="{{ histTable }}" as="t" hint-placeholder-count="5">
+<div style="display:flex;align-items:center;gap:12px;flex-wrap:wrap;padding:15px 0;border-bottom:1px solid var(--nw-hair);opacity:{{ t.op }}">
+<div style="width:8px;height:8px;border-radius:var(--radius-sm);background:{{ t.color }};flex:0 0 auto"></div>
+<div style="flex:1 1 130px;min-width:0;font-size:15.5px">{{ t.name }}</div>
+<div style="flex:1 1 auto;display:flex;align-items:baseline;justify-content:flex-end;gap:12px;min-width:0">
+<div style="font-family:'IBM Plex Mono',monospace;font-size:13px;color:var(--nw-faint);text-align:right">{{ t.startStr }}</div>
+<div style="font-family:'IBM Plex Mono',monospace;font-size:12px;color:var(--nw-faint)">→</div>
+<div style="font-family:'IBM Plex Mono',monospace;font-size:15px;text-align:right">{{ t.endStr }}</div>
+<div style="font-family:'IBM Plex Mono',monospace;font-size:13px;min-width:76px;text-align:right;color:{{ t.chgColor }}">{{ t.chgStr }}</div>
+</div>
+</div>
+</sc-for>
+</div>
+</div>
+</sc-if>
+
+</div>
+</div>
+</sc-if>
+
+<sc-if value="{{ modalOpen }}">
+<div onClick="{{ closeModal }}" style="position:fixed;inset:0;z-index:60;background:color-mix(in srgb, var(--color-neutral-900) 55%, transparent);display:flex;align-items:flex-start;justify-content:center;padding:clamp(16px,6vh,64px) 16px;overflow-y:auto;animation:nwFade .16s ease both">
+<div onClick="{{ stop }}" style="width:100%;max-width:430px;background:var(--nw-surface);border:1px solid var(--nw-line);border-radius:var(--radius-md);padding:clamp(22px,4vw,30px);box-shadow:var(--shadow-lg);animation:nwPop .2s ease both">
+<div style="font-size:22px;letter-spacing:-.02em">{{ modalTitle }}</div>
+<div style="display:flex;flex-direction:column;gap:16px;margin-top:24px">
+<label style="display:block">
+<div style="font-family:'IBM Plex Mono',monospace;font-size:10.5px;letter-spacing:.14em;text-transform:uppercase;color:var(--nw-faint);margin-bottom:7px">Name</div>
+<input value="{{ fName }}" onChange="{{ onName }}" placeholder="e.g. BPI Savings" style="width:100%;background:var(--nw-bg);border:1px solid var(--nw-line);border-radius:var(--radius-md);padding:11px 12px;font-size:15px;outline:none"></input>
+</label>
+<label style="display:block">
+<div style="font-family:'IBM Plex Mono',monospace;font-size:10.5px;letter-spacing:.14em;text-transform:uppercase;color:var(--nw-faint);margin-bottom:7px">Category</div>
+<select value="{{ fCat }}" onChange="{{ onCat }}" style="width:100%;background:var(--nw-bg);border:1px solid var(--nw-line);border-radius:var(--radius-md);padding:11px 12px;font-size:15px;outline:none">
+<option value="liquid">Liquid Cash</option>
+<option value="invest">Investments</option>
+<option value="physical">Physical Assets</option>
+<option value="liab">Liabilities</option>
+</select>
+</label>
+<label style="display:block">
+<div style="font-family:'IBM Plex Mono',monospace;font-size:10.5px;letter-spacing:.14em;text-transform:uppercase;color:var(--nw-faint);margin-bottom:7px">Value (PHP)</div>
+<input value="{{ fValue }}" onChange="{{ onValue }}" inputMode="decimal" placeholder="0" style="width:100%;background:var(--nw-bg);border:1px solid var(--nw-line);border-radius:var(--radius-md);padding:11px 12px;font-family:'IBM Plex Mono',monospace;font-size:19px;letter-spacing:-.02em;outline:none"></input>
+</label>
+<label style="display:block">
+<div style="font-family:'IBM Plex Mono',monospace;font-size:10.5px;letter-spacing:.14em;text-transform:uppercase;color:var(--nw-faint);margin-bottom:7px">Notes <span style="text-transform:none;letter-spacing:0;color:var(--nw-faint)">optional</span></div>
+<input value="{{ fNotes }}" onChange="{{ onNotes }}" placeholder="MacBook Pro, bought 2023" style="width:100%;background:var(--nw-bg);border:1px solid var(--nw-line);border-radius:var(--radius-md);padding:11px 12px;font-size:15px;outline:none"></input>
+</label>
+</div>
+<sc-if value="{{ formError }}">
+<div style="margin-top:14px;font-size:13.5px;color:var(--color-accent-2-600)">Give the item a name and a value.</div>
+</sc-if>
+<div style="display:flex;gap:8px;justify-content:flex-end;margin-top:28px">
+<button onClick="{{ closeModal }}" style="background:none;border:0;color:var(--nw-muted);font-size:14.5px;padding:10px 14px;border-radius:var(--radius-md);cursor:pointer" style-hover="color:var(--nw-fg)">Cancel</button>
+<button onClick="{{ save }}" style="background:var(--color-accent);border:0;color:#fff;font-size:14.5px;padding:10px 20px;border-radius:var(--radius-md);cursor:pointer" style-hover="background:var(--color-accent-600)" style-active="background:var(--color-accent-700)">{{ saveLabel }}</button>
+</div>
+</div>
+</div>
+</sc-if>
+
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props="{&quot;$preview&quot;:{&quot;width&quot;:1180,&quot;height&quot;:840}}">
+class Component extends DCLogic {
+  CATS = [
+    { id: 'liquid', name: 'Liquid Cash', base: 0.74, amp: 0.05, ph: 1.1 },
+    { id: 'invest', name: 'Investments', base: 0.58, amp: 0.022, ph: 2.3 },
+    { id: 'physical', name: 'Physical Assets', base: 0.955, amp: 0.005, ph: 0.7 },
+    { id: 'liab', name: 'Liabilities', base: 1.14, amp: 0.006, ph: 3.1 }
+  ];
+  MONTHS = ['Mar 25','Apr 25','May 25','Jun 25','Jul 25','Aug 25','Sep 25','Oct 25','Nov 25','Dec 25','Jan 26','Feb 26','Mar 26','Apr 26','May 26','Jun 26','Jul 26','Aug 26'];
+
+  PALETTE = {
+    light: { liquid: '#62c5ee', invest: '#0088b0', physical: '#edbb00', liab: '#d6006c', net: '#201e1d', hair: 'rgba(32,30,29,.10)', line: 'rgba(32,30,29,.32)', pos: '#006786', neg: '#aa0b56' },
+    dark:  { liquid: '#99e0ff', invest: '#38a6cf', physical: '#edbb00', liab: '#ff458e', net: '#f3f2f2', hair: 'rgba(243,242,242,.09)', line: 'rgba(243,242,242,.30)', pos: '#62c5ee', neg: '#ff90b1' }
+  };
+
+  state = {
+    auth: false, email: 'maya@vasquez.ph', pass: '', loginErr: false, theme: 'light',
+    view: 'dash', cat: null, modal: null, hover: -1, range: 18, err: false,
+    hidden: { liab: false },
+    form: { name: '', cat: 'liquid', value: '', notes: '' },
+    items: [
+      { id: 1, cat: 'liquid', name: 'BPI Savings', value: 620000, notes: 'Emergency fund — 6 months', updated: '01 Aug 26' },
+      { id: 2, cat: 'liquid', name: 'BDO Checking', value: 148500, notes: 'Bills and payroll', updated: '28 Jul 26' },
+      { id: 3, cat: 'liquid', name: 'GCash', value: 24300, notes: 'Daily spending', updated: '02 Aug 26' },
+      { id: 4, cat: 'invest', name: 'US index funds', value: 2150000, notes: 'VOO + VXUS via GoTrade', updated: '01 Aug 26' },
+      { id: 5, cat: 'invest', name: 'COL Financial — PSE', value: 1240000, notes: 'Blue chips, held since 2019', updated: '31 Jul 26' },
+      { id: 6, cat: 'invest', name: 'Pag-IBIG MP2', value: 480000, notes: '5-year term, matures 2029', updated: '31 Jul 26' },
+      { id: 7, cat: 'invest', name: 'Bitcoin', value: 310000, notes: 'PDAX wallet', updated: '02 Aug 26' },
+      { id: 8, cat: 'physical', name: 'Condo — Mandaluyong', value: 8500000, notes: 'Broker estimate, Jun 2026', updated: '18 Jun 26' },
+      { id: 9, cat: 'physical', name: '2019 Toyota Vios', value: 640000, notes: 'Second-hand market value', updated: '05 May 26' },
+      { id: 10, cat: 'physical', name: 'Leica Q2', value: 210000, notes: 'Bought used, 2022', updated: '12 Mar 26' },
+      { id: 11, cat: 'physical', name: 'MacBook Pro 16"', value: 145000, notes: 'M2 Max, bought 2023', updated: '12 Mar 26' },
+      { id: 12, cat: 'liab', name: 'Condo mortgage', value: 5240000, notes: '6.5% fixed, 18 yrs left', updated: '01 Aug 26' },
+      { id: 13, cat: 'liab', name: 'Auto loan', value: 315000, notes: '7.9%, ends 2028', updated: '01 Aug 26' },
+      { id: 14, cat: 'liab', name: 'BPI credit card', value: 68400, notes: 'Paid in full monthly', updated: '02 Aug 26' },
+      { id: 15, cat: 'liab', name: 'SSS salary loan', value: 42000, notes: '10 months remaining', updated: '01 Aug 26' }
+    ]
+  };
+
+  fmt(n) { return '₱' + Math.round(Math.abs(n)).toLocaleString('en-US'); }
+  short(n) { const a = Math.abs(n); if (a >= 1000000) return '₱' + (a / 1000000).toFixed(2) + 'M'; if (a >= 1000) return '₱' + Math.round(a / 1000) + 'k'; return '₱' + Math.round(a); }
+  pal() { return this.PALETTE[this.state.theme]; }
+  totalOf(id) { return this.state.items.filter(i => i.cat === id).reduce((s, i) => s + i.value, 0); }
+
+  series(c, total) {
+    const n = this.MONTHS.length, out = [];
+    for (let k = 0; k < n; k++) {
+      const t = k / (n - 1);
+      const noise = c.amp * (Math.sin(k * 0.9 + c.ph) - Math.sin((n - 1) * 0.9 + c.ph) * t);
+      out.push(total * (c.base + (1 - c.base) * t + noise));
+    }
+    out[n - 1] = total;
+    return out;
+  }
+
+  path(vals, W, H, min, max, pad) {
+    const n = vals.length, span = (max - min) || 1;
+    return vals.map((v, i) => {
+      const x = (i / (n - 1)) * W;
+      const y = H - pad - ((v - min) / span) * (H - pad * 2);
+      return (i ? 'L' : 'M') + x.toFixed(1) + ' ' + y.toFixed(1);
+    }).join(' ');
+  }
+
+  openModal(item, catId) {
+    this.setState({
+      modal: item ? 'edit' : 'add', err: false,
+      form: item
+        ? { id: item.id, name: item.name, cat: item.cat, value: String(item.value), notes: item.notes || '' }
+        : { name: '', cat: catId || 'liquid', value: '', notes: '' }
+    });
+  }
+
+  save() {
+    const f = this.state.form;
+    const val = parseFloat(String(f.value).replace(/[^0-9.\-]/g, ''));
+    if (!f.name.trim() || isNaN(val)) { this.setState({ err: true }); return; }
+    this.setState(s => {
+      const items = f.id
+        ? s.items.map(i => i.id === f.id ? { ...i, name: f.name.trim(), cat: f.cat, value: Math.abs(val), notes: f.notes, updated: '02 Aug 26' } : i)
+        : [{ id: Date.now(), cat: f.cat, name: f.name.trim(), value: Math.abs(val), notes: f.notes, updated: '02 Aug 26' }, ...s.items];
+      return { items, modal: null, err: false };
+    });
+  }
+
+  renderVals() {
+    const S = this.state, P = this.pal(), W = 1000, H = 300, PAD = 18;
+    const totals = {}; this.CATS.forEach(c => totals[c.id] = this.totalOf(c.id));
+    const assets = totals.liquid + totals.invest + totals.physical;
+    const net = assets - totals.liab;
+    const denom = assets || 1;
+
+    const ser = {}; this.CATS.forEach(c => ser[c.id] = this.series(c, totals[c.id]));
+    const netSer = this.MONTHS.map((_, k) => ser.liquid[k] + ser.invest[k] + ser.physical[k] - ser.liab[k]);
+
+    const n = this.MONTHS.length;
+    const months = this.MONTHS.slice(Math.max(0, n - S.range)), vals = netSer.slice(Math.max(0, n - S.range));
+    const lo = Math.min(...vals), hi = Math.max(...vals), pad0 = (hi - lo) * 0.15 || 1;
+
+    const backIdx = Math.max(0, n - 13);
+    const dNet = net - netSer[backIdx], dPct = (dNet / (netSer[backIdx] || 1)) * 100;
+
+    const hIdx = S.hover, hoverOn = hIdx >= 0 && hIdx < vals.length;
+    const hx = hoverOn ? (hIdx / (vals.length - 1)) * W : 0;
+
+    const cats = this.CATS.map(c => {
+      const pct = (totals[c.id] / denom) * 100;
+      return {
+        id: c.id, name: c.name, color: P[c.id],
+        totalStr: (c.id === 'liab' ? '−' : '') + this.fmt(totals[c.id]),
+        pctStr: pct.toFixed(1) + '%',
+        barW: 'calc(' + Math.min(100, pct).toFixed(2) + '% - 2px)',
+        count: S.items.filter(i => i.cat === c.id).length + ' items',
+        onOpen: () => this.setState({ view: 'cat', cat: c.id })
+      };
+    });
+
+    const activeCat = this.CATS.find(c => c.id === S.cat) || this.CATS[0];
+    const catItems = S.items.filter(i => i.cat === activeCat.id).map(i => ({
+      ...i,
+      valStr: (activeCat.id === 'liab' ? '−' : '') + this.fmt(i.value),
+      valColor: activeCat.id === 'liab' ? P.liab : 'inherit',
+      notes: i.notes || '—',
+      onEdit: () => this.openModal(i),
+      onDelete: () => this.setState(s => ({ items: s.items.filter(x => x.id !== i.id) }))
+    }));
+
+    const HH = 420;
+    const visible = this.CATS.filter(c => !S.hidden[c.id]);
+    const netVisible = !S.hidden.net;
+    const flat = visible.map(c => ser[c.id]).concat(netVisible ? [netSer] : []).flat();
+    const hMin = flat.length ? Math.min(...flat) * 0.9 : 0;
+    const hMax = flat.length ? Math.max(...flat) * 1.06 : 1;
+
+    const histSeries = [];
+    if (netVisible) histSeries.push({ color: P.net, w: 2, dash: '0', path: this.path(netSer, W, HH, hMin, hMax, 14) });
+    visible.forEach(c => histSeries.push({ color: P[c.id], w: 1.6, dash: c.id === 'liab' ? '5 4' : '0', path: this.path(ser[c.id], W, HH, hMin, hMax, 14) }));
+
+    const rows = [{ id: 'net', name: 'Net worth', color: P.net }].concat(this.CATS.map(c => ({ id: c.id, name: c.name, color: P[c.id] })));
+    const legend = rows.map(l => {
+      const on = !S.hidden[l.id];
+      return {
+        name: l.name, dot: on ? l.color : 'var(--nw-faint)',
+        border: on ? 'var(--nw-line)' : 'var(--nw-hair)',
+        color: on ? 'var(--nw-fg)' : 'var(--nw-faint)',
+        onToggle: () => this.setState(s => ({ hidden: { ...s.hidden, [l.id]: !s.hidden[l.id] } }))
+      };
+    });
+
+    const histTable = rows.map(l => {
+      const arr = l.id === 'net' ? netSer : ser[l.id];
+      const chg = arr[n - 1] - arr[0], good = l.id === 'liab' ? chg < 0 : chg > 0;
+      return {
+        name: l.name, color: l.color, op: S.hidden[l.id] ? '0.4' : '1',
+        startStr: this.short(arr[0]), endStr: this.short(arr[n - 1]),
+        chgStr: (chg >= 0 ? '+' : '−') + this.short(chg),
+        chgColor: good ? P.pos : P.neg
+      };
+    });
+
+    return {
+      theme: S.theme,
+      themeLabel: S.theme === 'light' ? 'Switch to dark' : 'Switch to light',
+      themeGlyph: S.theme === 'light' ? '◐' : '◑',
+      toggleTheme: () => this.setState(s => ({ theme: s.theme === 'light' ? 'dark' : 'light' })),
+
+      isLogin: !S.auth, isApp: S.auth,
+      email: S.email, pass: S.pass, loginError: S.loginErr,
+      onEmail: e => { const v = e.target.value; this.setState({ email: v }); },
+      onPass: e => { const v = e.target.value; this.setState({ pass: v }); },
+      signIn: () => this.setState(s => (s.email.trim() && s.pass.trim() ? { auth: true, loginErr: false } : { loginErr: true })),
+      signOut: () => this.setState({ auth: false, pass: '', view: 'dash' }),
+
+      isDash: S.view === 'dash', isCat: S.view === 'cat', isHist: S.view === 'hist',
+      dashColor: S.view === 'hist' ? 'var(--nw-muted)' : 'var(--nw-fg)',
+      histColor: S.view === 'hist' ? 'var(--nw-fg)' : 'var(--nw-muted)',
+      goDash: () => this.setState({ view: 'dash', hover: -1 }),
+      goHist: () => this.setState({ view: 'hist' }),
+      onAddGlobal: () => this.openModal(null, S.view === 'cat' ? S.cat : 'liquid'),
+      onAddInCat: () => this.openModal(null, activeCat.id),
+
+      asOf: '· as of 2 aug 2026',
+      netStr: this.fmt(net),
+      deltaStr: (dNet >= 0 ? '▲ ' : '▼ ') + this.fmt(dNet) + '  ' + (dNet >= 0 ? '+' : '−') + Math.abs(dPct).toFixed(1) + '%',
+      deltaColor: dNet >= 0 ? P.pos : P.neg,
+
+      ranges: [{ label: '6M', v: 6 }, { label: '1Y', v: 12 }, { label: 'ALL', v: 18 }].map(r => ({
+        label: r.label,
+        color: S.range === r.v ? 'var(--nw-fg)' : 'var(--nw-faint)',
+        onClick: () => this.setState({ range: r.v, hover: -1 })
+      })),
+      netPath: this.path(vals, W, H, lo - pad0, hi + pad0, PAD),
+      netColor: P.invest, hairColor: P.hair, lineColor: P.line, liabColor: P.liab,
+      gridY: [0.15, 0.4, 0.65, 0.9].map(f => ({ y: (H * f).toFixed(0) })),
+      gridYH: [0.1, 0.3, 0.5, 0.7, 0.9].map(f => ({ y: (HH * f).toFixed(0) })),
+      histMaxStr: this.short(hMax),
+      xFirst: months[0], xMid: months[Math.floor(months.length / 2)], xLast: months[months.length - 1],
+      hoverOn, hoverX: hx.toFixed(1), hoverPct: ((hx / W) * 100).toFixed(2) + '%',
+      hoverMonth: hoverOn ? months[hIdx] : '', hoverVal: hoverOn ? this.fmt(vals[hIdx]) : '',
+      onChartMove: e => {
+        const r = e.currentTarget.getBoundingClientRect();
+        const idx = Math.round(((e.clientX - r.left) / r.width) * (vals.length - 1));
+        this.setState({ hover: Math.max(0, Math.min(vals.length - 1, idx)) });
+      },
+      onChartLeave: () => this.setState({ hover: -1 }),
+
+      cats, assetCats: cats.filter(c => c.id !== 'liab'),
+      liabBarW: 'calc(' + Math.min(100, (totals.liab / denom) * 100).toFixed(2) + '% - 2px)',
+      liabBarStr: this.fmt(totals.liab) + ' owed · ' + ((totals.liab / denom) * 100).toFixed(1) + '% of assets',
+      catName: activeCat.name, catColor: P[activeCat.id],
+      catTotalStr: (activeCat.id === 'liab' ? '−' : '') + this.fmt(totals[activeCat.id]),
+      catSub: catItems.length + ' items · ' + ((totals[activeCat.id] / denom) * 100).toFixed(1) + '% of total assets',
+      catItems, catEmpty: catItems.length === 0,
+
+      histSeries, legend, histTable,
+
+      modalOpen: !!S.modal,
+      modalTitle: S.modal === 'edit' ? 'Edit item' : 'Add item',
+      saveLabel: S.modal === 'edit' ? 'Save changes' : 'Add item',
+      formError: S.err,
+      fName: S.form.name, fCat: S.form.cat, fValue: S.form.value, fNotes: S.form.notes,
+      onName: e => { const v = e.target.value; this.setState(s => ({ form: { ...s.form, name: v } })); },
+      onCat: e => { const v = e.target.value; this.setState(s => ({ form: { ...s.form, cat: v } })); },
+      onValue: e => { const v = e.target.value; this.setState(s => ({ form: { ...s.form, value: v } })); },
+      onNotes: e => { const v = e.target.value; this.setState(s => ({ form: { ...s.form, notes: v } })); },
+      closeModal: () => this.setState({ modal: null, err: false }),
+      stop: e => e.stopPropagation(),
+      save: () => this.save()
+    };
+  }
+}
+</script>
+</body>
+</html>

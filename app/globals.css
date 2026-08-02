@@ -1,0 +1,271 @@
+/*
+ * App-level styles. The Broadsheet design system itself lives untouched in
+ * public/broadsheet/styles.css; everything here is NetWorth's own layer on
+ * top of its tokens.
+ *
+ * Ported verbatim from the prototype's <helmet> block, plus the hover
+ * classes described below.
+ */
+
+:root {
+  --nw-bg: var(--color-bg);
+  --nw-surface: #ffffff;
+  --nw-fg: var(--color-text);
+  --nw-muted: color-mix(in srgb, var(--color-text) 58%, transparent);
+  --nw-faint: color-mix(in srgb, var(--color-text) 34%, transparent);
+  --nw-line: color-mix(in srgb, var(--color-text) 12%, transparent);
+  --nw-hair: color-mix(in srgb, var(--color-text) 7%, transparent);
+}
+
+[data-nw-theme='dark'] {
+  --nw-bg: #191817;
+  --nw-surface: #211f1e;
+  --nw-fg: #f3f2f2;
+  --nw-muted: color-mix(in srgb, #f3f2f2 58%, transparent);
+  --nw-faint: color-mix(in srgb, #f3f2f2 32%, transparent);
+  --nw-line: color-mix(in srgb, #f3f2f2 14%, transparent);
+  --nw-hair: color-mix(in srgb, #f3f2f2 8%, transparent);
+}
+
+html,
+body {
+  margin: 0;
+  background: var(--nw-bg);
+  color: var(--nw-fg);
+  font-family: var(--font-body);
+}
+
+* {
+  box-sizing: border-box;
+}
+
+a {
+  color: var(--color-accent);
+  text-decoration: none;
+}
+a:hover {
+  color: var(--color-accent-600);
+}
+
+button,
+input,
+select {
+  font-family: inherit;
+  color: inherit;
+}
+
+button:focus-visible,
+input:focus-visible,
+select:focus-visible {
+  outline: 2px solid var(--color-accent);
+  outline-offset: 2px;
+}
+
+@keyframes nwIn {
+  from {
+    opacity: 0;
+    transform: translateY(6px);
+  }
+  to {
+    opacity: 1;
+  }
+}
+@keyframes nwFade {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+@keyframes nwPop {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}
+
+/* ───────────────────────────────────────────────────────────────────────
+   Interaction classes.
+
+   These replace the prototype's `style-hover` / `style-active` attributes,
+   which were a feature of the DC runtime (it generated one class per
+   attribute and marked every declaration !important so it could beat the
+   element's inline style).
+
+   Base state lives in the class alongside the hover state, deliberately:
+   an inline `style` attribute beats any external rule regardless of
+   specificity, so a `:hover` class sitting next to an inline `background`
+   would silently do nothing.
+   ─────────────────────────────────────────────────────────────────────── */
+
+/* Text that turns accent on hover — nav links, ghost buttons, back links. */
+.nw-hover-accent {
+  background: none;
+  border: 0;
+  cursor: pointer;
+  border-radius: var(--radius-md);
+  transition: color 0.15s ease;
+}
+.nw-hover-accent:hover {
+  color: var(--color-accent);
+}
+
+/* Muted text that resolves to full foreground on hover (modal Cancel). */
+.nw-hover-fg {
+  background: none;
+  border: 0;
+  cursor: pointer;
+  color: var(--nw-muted);
+  border-radius: var(--radius-md);
+  transition: color 0.15s ease;
+}
+.nw-hover-fg:hover {
+  color: var(--nw-fg);
+}
+
+/* Destructive affordances — Delete, Sign out. */
+.nw-hover-danger {
+  background: none;
+  border: 0;
+  cursor: pointer;
+  border-radius: var(--radius-md);
+  transition: color 0.15s ease;
+}
+.nw-hover-danger:hover {
+  color: var(--color-accent-2-600);
+}
+
+/* Filled primary action. Same accent ramp the design system's .btn-primary
+   uses, but the prototype's own type size and padding. */
+.nw-btn-primary {
+  background: var(--color-accent);
+  color: #fff;
+  border: 0;
+  border-radius: var(--radius-md);
+  cursor: pointer;
+  transition: background 0.15s ease;
+}
+.nw-btn-primary:hover {
+  background: var(--color-accent-600);
+}
+.nw-btn-primary:active {
+  background: var(--color-accent-700);
+}
+.nw-btn-primary:disabled {
+  opacity: 0.55;
+  cursor: not-allowed;
+}
+
+/* Outlined secondary action — "+ Add item" inside a category. */
+.nw-btn-outline {
+  background: none;
+  border: 1px solid var(--nw-line);
+  color: var(--color-accent);
+  border-radius: var(--radius-md);
+  cursor: pointer;
+  transition: border-color 0.15s ease, background 0.15s ease;
+}
+.nw-btn-outline:hover {
+  border-color: var(--color-accent);
+  background: color-mix(in srgb, var(--color-accent) 8%, transparent);
+}
+
+/* Icon button in the header (theme toggle). */
+.nw-btn-icon {
+  background: none;
+  border: 1px solid var(--nw-line);
+  color: var(--nw-muted);
+  border-radius: var(--radius-md);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: color 0.15s ease, border-color 0.15s ease;
+}
+.nw-btn-icon:hover {
+  color: var(--color-accent);
+  border-color: var(--color-accent);
+}
+
+/* Category card — a top rule that picks up the accent on hover. */
+.nw-cat-card {
+  text-align: left;
+  background: none;
+  border: 0;
+  border-top: 1px solid var(--nw-line);
+  padding: 16px 0 0;
+  cursor: pointer;
+  color: inherit;
+  width: 100%;
+  transition: border-color 0.18s ease;
+}
+.nw-cat-card:hover {
+  border-color: var(--color-accent);
+}
+
+/* Legend chips on the history view; `aria-pressed` drives the muted state. */
+.nw-chip {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background: none;
+  border: 1px solid var(--nw-line);
+  color: var(--nw-fg);
+  font-size: 13.5px;
+  padding: 7px 13px;
+  border-radius: var(--radius-md);
+  cursor: pointer;
+  transition: border-color 0.15s ease, color 0.15s ease;
+}
+.nw-chip:hover {
+  border-color: var(--color-accent);
+}
+.nw-chip[aria-pressed='false'] {
+  border-color: var(--nw-hair);
+  color: var(--nw-faint);
+}
+
+/* Shared text input treatment. */
+.nw-input {
+  width: 100%;
+  background: var(--nw-surface);
+  border: 1px solid var(--nw-line);
+  border-radius: var(--radius-md);
+  padding: 12px 13px;
+  font-size: 15px;
+  outline: none;
+  transition: border-color 0.15s ease;
+}
+.nw-input:hover {
+  border-color: color-mix(in srgb, var(--color-text) 45%, transparent);
+}
+.nw-input:focus-visible {
+  border-color: var(--color-accent);
+}
+
+/* Screen-reader-only, for labels the design conveys visually. */
+.nw-sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
