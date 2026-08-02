@@ -41,6 +41,14 @@ npm run verify:lib        # money, chart and date helpers
 npm run verify:rls        # per-user isolation, proven at the database
 npm run verify:e2e        # full user journey in a real browser
 npm run verify:history    # multi-month chart, seeded with backdated snapshots
+npm run verify:features   # goals, activity log, observations and CSV export
+```
+
+`verify:features` takes an optional base URL and can be pointed at a
+deployment as well as at localhost:
+
+```bash
+npm run verify:features -- https://networth-ph.vercel.app
 ```
 
 `verify:rls` is the one that matters most: it drives the REST API as two
