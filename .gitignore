@@ -39,7 +39,13 @@ yarn-error.log*
 # typescript
 *.tsbuildinfo
 next-env.d.ts
-!.env.example
 
 # verification artifacts
 /scripts/screenshots
+
+# deployment
+.vercel
+
+# local secrets — the checked-in template is the one exception
+.env*
+!.env.example
