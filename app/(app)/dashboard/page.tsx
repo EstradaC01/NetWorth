@@ -1,6 +1,6 @@
 import { redirect } from 'next/navigation'
 import {
-  getGoal,
+  getGoals,
   getItems,
   getSnapshots,
   recordCurrentSnapshot,
@@ -21,7 +21,7 @@ export default async function DashboardPage() {
   if (items.length > 0) await recordCurrentSnapshot(user.id, items)
 
   // After the snapshot write, so the chart includes the reading just taken.
-  const [snapshots, goal] = await Promise.all([getSnapshots(), getGoal()])
+  const [snapshots, goals] = await Promise.all([getSnapshots(), getGoals()])
 
-  return <Dashboard items={items} snapshots={snapshots} goal={goal} />
+  return <Dashboard items={items} snapshots={snapshots} goals={goals} />
 }

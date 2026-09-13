@@ -78,7 +78,7 @@ export function HistoryView({
   const enoughData = points.length >= 2
 
   return (
-    <div style={{ animation: 'nwIn .28s ease both' }}>
+    <div className="nw-screen nw-history" style={{ animation: 'nwIn .28s ease both' }}>
       <div
         style={{
           fontFamily: MONO,

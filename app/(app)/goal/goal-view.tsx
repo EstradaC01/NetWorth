@@ -3,242 +3,44 @@
 import { useActionState, useMemo, useState, useTransition } from 'react'
 import { clearGoal, saveGoal, type GoalFormState } from '@/app/actions/goals'
 import { GoalProgress } from '@/components/goal-progress'
-import { centsToInput } from '@/lib/money'
-import { type Goal } from '@/lib/goals'
-import { totalsFrom, type Item, type Snapshot } from '@/lib/types'
+import { allocatedTotal, type Goal } from '@/lib/goals'
+import { centsToInput, fmt } from '@/lib/money'
+import { totalsFrom, type Item } from '@/lib/types'
 
-const MONO = "'IBM Plex Mono',monospace"
 const initial: GoalFormState = { error: null }
 
-function Label({ children }: { children: React.ReactNode }) {
-  return (
-    <div
-      style={{
-        fontFamily: MONO,
-        fontSize: 10.5,
-        letterSpacing: '.14em',
-        textTransform: 'uppercase',
-        color: 'var(--nw-faint)',
-        marginBottom: 7,
-      }}
-    >
-      {children}
-    </div>
-  )
-}
-
-export function GoalView({
-  goal,
-  items,
-  snapshots,
-}: {
-  goal: Goal | null
-  items: Item[]
-  snapshots: Snapshot[]
-}) {
+export function GoalView({ goals, items }: { goals: Goal[]; items: Item[] }) {
+  const [editing, setEditing] = useState<Goal | null>(null)
   const [result, formAction, pending] = useActionState(saveGoal, initial)
-  const [clearing, startClearing] = useTransition()
-  const [clearError, setClearError] = useState<string | null>(null)
-
+  const [removing, startRemoving] = useTransition()
   const totals = useMemo(() => totalsFrom(items), [items])
-
-  const onClear = () => {
-    setClearError(null)
-    startClearing(async () => {
-      const res = await clearGoal()
-      if (res.error) setClearError(res.error)
-    })
-  }
-
-  return (
-    <div style={{ animation: 'nwIn .28s ease both', maxWidth: 620 }}>
-      <div
-        style={{
-          fontFamily: MONO,
-          fontSize: 11,
-          letterSpacing: '.16em',
-          textTransform: 'uppercase',
-          color: 'var(--nw-faint)',
-        }}
-      >
-        Your goal
-      </div>
-
-      {goal ? (
-        <div style={{ marginTop: 26 }}>
-          <GoalProgress
-            goal={goal}
-            currentNet={totals.net}
-            snapshots={snapshots}
-          />
-          {goal.note && (
-            <div
-              style={{
-                marginTop: 18,
-                paddingLeft: 14,
-                borderLeft: '2px solid var(--nw-line)',
-                fontSize: 15.5,
-                color: 'var(--nw-muted)',
-                lineHeight: 1.5,
-              }}
-            >
-              {goal.note}
-            </div>
-          )}
-        </div>
-      ) : (
-        <p
-          style={{
-            fontSize: 17,
-            lineHeight: 1.5,
-            color: 'var(--nw-muted)',
-            margin: '20px 0 0',
-            maxWidth: '46ch',
-            textWrap: 'pretty',
-          }}
-        >
-          Set a number to aim at. Once you have two months of readings, your
-          own recorded pace is used to estimate when you would reach it —
-          nothing is assumed about what you save.
-        </p>
-      )}
-
-      <div
-        style={{
-          marginTop: 40,
-          paddingTop: 30,
-          borderTop: '1px solid var(--nw-line)',
-        }}
-      >
-        <div style={{ fontSize: 19, letterSpacing: '-.02em' }}>
-          {goal ? 'Change your goal' : 'Set a goal'}
-        </div>
-
-        {/* Remounted whenever the saved goal changes, so defaultValue picks up
-            the new row rather than keeping what was typed before. */}
-        <form
-          action={formAction}
-          key={goal ? `${goal.target_cents}-${goal.target_date}` : 'none'}
-        >
-          <div
-            style={{
-              display: 'flex',
-              flexDirection: 'column',
-              gap: 18,
-              marginTop: 22,
-            }}
-          >
-            <label style={{ display: 'block' }}>
-              <Label>Target net worth (PHP)</Label>
-              <input
-                name="target"
-                inputMode="decimal"
-                required
-                defaultValue={goal ? centsToInput(goal.target_cents) : ''}
-                placeholder="5000000"
-                className="nw-input"
-                style={{
-                  fontFamily: MONO,
-                  fontSize: 19,
-                  letterSpacing: '-.02em',
-                }}
-              />
-            </label>
-
-            <label style={{ display: 'block' }}>
-              <Label>
-                By{' '}
-                <span
-                  style={{
-                    textTransform: 'none',
-                    letterSpacing: 0,
-                    color: 'var(--nw-faint)',
-                  }}
-                >
-                  optional
-                </span>
-              </Label>
-              <input
-                name="target_date"
-                type="date"
-                defaultValue={goal?.target_date ?? ''}
-                className="nw-input"
-                style={{ fontFamily: MONO, fontSize: 15 }}
-              />
-            </label>
-
-            <label style={{ display: 'block' }}>
-              <Label>
-                Why{' '}
-                <span
-                  style={{
-                    textTransform: 'none',
-                    letterSpacing: 0,
-                    color: 'var(--nw-faint)',
-                  }}
-                >
-                  optional
-                </span>
-              </Label>
-              <input
-                name="note"
-                maxLength={200}
-                defaultValue={goal?.note ?? ''}
-                placeholder="Deposit on a place in Quezon City"
-                className="nw-input"
-              />
-            </label>
-          </div>
-
-          {(result.error || clearError) && (
-            <div
-              role="alert"
-              style={{
-                marginTop: 16,
-                fontSize: 13.5,
-                color: 'var(--color-accent-2-600)',
-              }}
-            >
-              {result.error ?? clearError}
-            </div>
-          )}
-
-          <div
-            style={{
-              display: 'flex',
-              gap: 8,
-              alignItems: 'center',
-              marginTop: 26,
-            }}
-          >
-            <button
-              type="submit"
-              className="nw-btn-primary"
-              disabled={pending}
-              style={{ fontSize: 14.5, padding: '10px 20px' }}
-            >
-              {pending ? 'Saving…' : goal ? 'Save goal' : 'Set goal'}
-            </button>
-
-            {goal && (
-              <button
-                type="button"
-                onClick={onClear}
-                disabled={clearing}
-                className="nw-hover-danger"
-                style={{
-                  marginLeft: 'auto',
-                  fontSize: 13.5,
-                  padding: '10px 12px',
-                  color: 'var(--nw-faint)',
-                }}
-              >
-                {clearing ? 'Removing…' : 'Remove goal'}
-              </button>
-            )}
-          </div>
-        </form>
-      </div>
+  const allocated = allocatedTotal(goals)
+  const available = Math.max(0, totals.liquid - allocated)
+  const selected = editing
+  const remove = (id: string) => startRemoving(async () => { await clearGoal(id) })
+  return <div className="nw-screen nw-goal" style={{ animation: 'nwIn .28s ease both', maxWidth: 720 }}>
+    <div style={{ fontSize: 11, letterSpacing: '.16em', textTransform: 'uppercase', color: 'var(--nw-faint)' }}>Your allocations</div>
+    <p style={{ margin: '14px 0 0', color: 'var(--nw-muted)', lineHeight: 1.55, maxWidth: '58ch' }}>Goals move only when you deliberately assign cash to them. Your investments and the rest of your net worth stay out of the calculation.</p>
+    <div style={{ marginTop: 22, padding: 18, border: '1px solid var(--nw-line)', borderRadius: 14, background: 'var(--nw-surface)' }}>
+      <div style={{ fontSize: 13, color: 'var(--nw-muted)' }}>Available to allocate from liquid cash</div>
+      <div style={{ fontSize: 28, fontWeight: 600, marginTop: 4 }}>{fmt(available)}</div>
+      <div style={{ fontSize: 12.5, color: 'var(--nw-faint)', marginTop: 4 }}>{fmt(allocated)} allocated across {goals.length} {goals.length === 1 ? 'goal' : 'goals'} · {fmt(totals.liquid)} liquid cash</div>
     </div>
-  )
+    {goals.length > 0 && <div style={{ display: 'grid', gap: 12, marginTop: 24 }}>{goals.map((goal) => <div key={goal.id} style={{ padding: 18, border: '1px solid var(--nw-line)', borderRadius: 14 }}><GoalProgress goal={goal} />{goal.note && <p style={{ margin: '11px 0 0', color: 'var(--nw-muted)', fontSize: 13.5 }}>{goal.note}</p>}<div style={{ display: 'flex', gap: 12, marginTop: 14 }}><button type="button" className="nw-hover-accent" onClick={() => setEditing(goal)}>Edit allocation</button><button type="button" className="nw-hover-danger" disabled={removing} onClick={() => remove(goal.id)} style={{ color: 'var(--nw-faint)' }}>Remove</button></div></div>)}</div>}
+    <div style={{ marginTop: 32, paddingTop: 26, borderTop: '1px solid var(--nw-line)' }}>
+      <div style={{ fontSize: 19 }}>{selected ? `Edit ${selected.name}` : 'Add a goal'}</div>
+      <form action={formAction} key={selected?.id ?? 'new'} style={{ marginTop: 18 }}>
+        {selected && <input type="hidden" name="id" value={selected.id} />}
+        <div style={{ display: 'grid', gap: 14 }}>
+          <label>Goal name<input className="nw-input" name="name" required maxLength={80} defaultValue={selected?.name ?? ''} placeholder="Emergency fund" /></label>
+          <label>Target (PHP)<input className="nw-input" name="target" required inputMode="decimal" defaultValue={selected ? centsToInput(selected.target_cents) : ''} placeholder="100000" /></label>
+          <label>Allocated now (PHP)<input className="nw-input" name="allocated" required inputMode="decimal" defaultValue={selected ? centsToInput(selected.allocated_cents) : '0'} /><span style={{ display: 'block', marginTop: 5, fontSize: 12.5, color: 'var(--nw-faint)' }}>You can assign up to {fmt(selected ? available + selected.allocated_cents : available)} from currently unallocated cash.</span></label>
+          <label>Target date (optional)<input className="nw-input" name="target_date" type="date" defaultValue={selected?.target_date ?? ''} /></label>
+          <label>Note (optional)<input className="nw-input" name="note" maxLength={200} defaultValue={selected?.note ?? ''} placeholder="A little more breathing room." /></label>
+        </div>
+        {result.error && <p role="alert" style={{ color: 'var(--color-accent-2-600)' }}>{result.error}</p>}
+        <div style={{ display: 'flex', gap: 10, marginTop: 20 }}><button className="nw-btn-primary" disabled={pending} type="submit">{pending ? 'Saving…' : selected ? 'Save allocation' : 'Add goal'}</button>{selected && <button type="button" onClick={() => setEditing(null)}>Cancel</button>}</div>
+      </form>
+    </div>
+  </div>
 }

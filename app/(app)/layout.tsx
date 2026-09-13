@@ -17,23 +17,9 @@ export default async function AppLayout({
 
   return (
     <ItemModalProvider>
-      <div
-        style={{
-          minHeight: '100vh',
-          background: 'var(--nw-bg)',
-          color: 'var(--nw-fg)',
-          transition: 'background .25s ease,color .25s ease',
-        }}
-      >
+      <div className="nw-app-shell">
         <Header />
-        <div
-          style={{
-            maxWidth: 1100,
-            margin: '0 auto',
-            padding:
-              'clamp(28px,5vw,56px) clamp(16px,4vw,40px) 96px',
-          }}
-        >
+        <div className="nw-app-main">
           {children}
         </div>
         <ItemModal />

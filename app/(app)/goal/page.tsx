@@ -1,5 +1,5 @@
 import { redirect } from 'next/navigation'
-import { getGoal, getItems, getSnapshots, requireUser } from '@/lib/data'
+import { getGoals, getItems, requireUser } from '@/lib/data'
 import { GoalView } from './goal-view'
 
 export const metadata = { title: 'Goal · NetWorth' }
@@ -12,11 +12,10 @@ export default async function GoalPage() {
   // not a reading of the portfolio — it is where the target is set, and
   // writing a snapshot on load would let a user create a month's history by
   // editing their goal rather than by holding assets.
-  const [goal, items, snapshots] = await Promise.all([
-    getGoal(),
+  const [goals, items] = await Promise.all([
+    getGoals(),
     getItems(),
-    getSnapshots(),
   ])
 
-  return <GoalView goal={goal} items={items} snapshots={snapshots} />
+  return <GoalView goals={goals} items={items} />
 }

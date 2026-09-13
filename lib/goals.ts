@@ -12,9 +12,23 @@ import { monthsBetween } from './dates'
 import { totalsFromSnapshot, type Snapshot } from './types'
 
 export type Goal = {
+  id: string
+  name: string
   target_cents: number
+  allocated_cents: number
   target_date: string | null // 'YYYY-MM-DD'
   note: string | null
+}
+
+/** Allocation is intentional: a peso progresses a goal only after the owner
+ * assigns it there, never merely because it happens to sit in cash. */
+export function allocationProgress(goal: Goal): number {
+  if (goal.target_cents <= 0) return 0
+  return Math.max(0, Math.min(1, goal.allocated_cents / goal.target_cents))
+}
+
+export function allocatedTotal(goals: Goal[]): number {
+  return goals.reduce((total, goal) => total + goal.allocated_cents, 0)
 }
 
 /**

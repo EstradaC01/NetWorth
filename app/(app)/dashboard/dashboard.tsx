@@ -30,12 +30,12 @@ const RANGES = [
 export function Dashboard({
   items,
   snapshots,
-  goal,
+  goals,
   basePath = '',
 }: {
   items: Item[]
   snapshots: Snapshot[]
-  goal: Goal | null
+  goals: Goal[]
   /** Prefix used by the browser-only workspace. */
   basePath?: string
 }) {
@@ -91,7 +91,7 @@ export function Dashboard({
   const denom = totals.assets || 1
 
   return (
-    <div style={{ animation: 'nwIn .3s ease both' }}>
+    <div className="nw-screen nw-dashboard" style={{ animation: 'nwIn .3s ease both' }}>
       <div
         style={{
           display: 'flex',
@@ -173,7 +173,7 @@ export function Dashboard({
 
       {/* Goal sits directly under the headline figure: it reframes the number
           above it, and is the first thing a user with a target looks for. */}
-      {goal ? (
+      {goals.length > 0 ? (
         <div
           style={{
             marginTop: 'clamp(26px,3.5vw,38px)',
@@ -182,9 +182,7 @@ export function Dashboard({
           }}
         >
           <GoalProgress
-            goal={goal}
-            currentNet={totals.net}
-            snapshots={snapshots}
+            goal={goals[0]}
             compact
           />
         </div>

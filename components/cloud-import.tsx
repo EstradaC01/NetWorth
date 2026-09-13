@@ -1,9 +1,38 @@
 'use client'
 
-import { useActionState } from 'react'
+import { useActionState, useId, useState } from 'react'
+import { FileJson, Upload } from 'lucide-react'
 import { importLocalBackup } from '@/app/actions/import-backup'
+import { Button } from '@/components/ui/button'
+
+function fileSize(bytes: number) {
+  if (bytes < 1024) return `${bytes} B`
+  return `${(bytes / 1024).toFixed(1)} KB`
+}
 
 export function CloudImport() {
   const [state, action, pending] = useActionState(importLocalBackup, { error: null })
-  return <section style={{ marginTop: 24, paddingTop: 24, borderTop: '1px solid var(--nw-hair)' }}><div style={{ fontSize: 14.5 }}>Move a local backup into this account</div><p style={{ color: 'var(--nw-faint)', fontSize: 13.5, margin: '7px 0 12px', maxWidth: '62ch' }}>Choose a JSON backup you downloaded from local-only mode. This upload happens only when you submit it; it is not automatic sync. For safety, importing is available only while this account is empty and never overwrites cloud records.</p><form action={action} style={{ display: 'flex', gap: 10, alignItems: 'center', flexWrap: 'wrap' }}><input name="backup" type="file" accept="application/json,.json" required /><button className="nw-btn-outline" type="submit" disabled={pending} style={{ padding: '8px 12px' }}>{pending ? 'Importing…' : 'Import local backup'}</button></form>{state.error && <p role="alert" style={{ color: 'var(--color-accent-2-600)', fontSize: 13.5 }}>{state.error}</p>}{state.message && <p role="status" style={{ color: 'var(--color-accent)', fontSize: 13.5 }}>{state.message}</p>}</section>
+  const [file, setFile] = useState<File | null>(null)
+  const inputId = useId()
+
+  return (
+    <section className="nw-cloud-import">
+      <div className="nw-cloud-import-heading">
+        <div className="nw-cloud-import-mark" aria-hidden="true"><Upload /></div>
+        <div><h2>Move a local backup into this account</h2><p>Choose the JSON backup you downloaded from local-only mode. Nothing uploads until you confirm the import.</p></div>
+      </div>
+      <p className="nw-cloud-import-safety">For safety, imports are available only while this account is empty and never overwrite cloud records.</p>
+      <form action={action} className="nw-cloud-import-form">
+        <input id={inputId} className="nw-sr-only" name="backup" type="file" accept="application/json,.json" required onChange={(event) => setFile(event.target.files?.[0] ?? null)} />
+        <label className="nw-file-picker" htmlFor={inputId}>
+          <span className="nw-file-picker-icon" aria-hidden="true"><FileJson /></span>
+          <span className="nw-file-picker-copy"><strong>{file ? file.name : 'Choose a backup file'}</strong><small>{file ? `${fileSize(file.size)} JSON backup ready to import` : 'Select a .json backup file from this device'}</small></span>
+          <span className="nw-file-picker-action">Browse files</span>
+        </label>
+        <Button className="nw-cloud-import-submit" type="submit" disabled={!file || pending}>{pending ? 'Importing...' : 'Import backup'}</Button>
+      </form>
+      {state.error && <p className="nw-cloud-import-error" role="alert">{state.error}</p>}
+      {state.message && <p className="nw-cloud-import-success" role="status">{state.message}</p>}
+    </section>
+  )
 }

@@ -60,7 +60,7 @@ export function CategoryView({
   }
 
   return (
-    <div style={{ animation: 'nwIn .28s ease both' }}>
+    <div className="nw-screen nw-category" style={{ animation: 'nwIn .28s ease both' }}>
       <Link
         href={`${basePath ?? ''}/dashboard`}
         className="nw-hover-accent"

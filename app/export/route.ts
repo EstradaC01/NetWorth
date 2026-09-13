@@ -1,5 +1,5 @@
 import { NextRequest } from 'next/server'
-import { getAllItemEvents, getGoal, getItems, getSnapshots, requireUser } from '@/lib/data'
+import { getAllItemEvents, getGoals, getItems, getSnapshots, requireUser } from '@/lib/data'
 import { categoryById } from '@/lib/categories'
 import { csvAmount, exportFilename, toCsv } from '@/lib/csv'
 import { currentMonthKey } from '@/lib/dates'
@@ -25,10 +25,10 @@ export async function GET(request: NextRequest) {
   const month = currentMonthKey()
 
   if (kind === 'backup') {
-    const [items, snapshots, events, goal] = await Promise.all([getItems(), getSnapshots(), getAllItemEvents(), getGoal()])
+    const [items, snapshots, events, goals] = await Promise.all([getItems(), getSnapshots(), getAllItemEvents(), getGoals()])
     // Use the same portable schema as a local backup: this makes an account
     // export genuinely restorable into either storage mode.
-    const body = JSON.stringify({ format: 'networth-backup', version: 1, exportedAt: new Date().toISOString(), data: { items, snapshots, events, goal } }, null, 2)
+    const body = JSON.stringify({ format: 'networth-backup', version: 2, exportedAt: new Date().toISOString(), data: { items, snapshots, events, goals } }, null, 2)
     return new Response(body, { headers: { 'Content-Type': 'application/json; charset=utf-8', 'Content-Disposition': `attachment; filename="networth-cloud-backup-${month.slice(0, 7)}.json"`, 'Cache-Control': 'no-store, private' } })
   }
 

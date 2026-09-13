@@ -7,9 +7,9 @@ import type { CategoryId } from '@/lib/categories'
 
 const DB_NAME = 'networth-local'
 const DB_VERSION = 1
-const BACKUP_VERSION = 1
+const BACKUP_VERSION = 2
 
-export type LocalData = { items: Item[]; snapshots: Snapshot[]; events: ItemEvent[]; goal: Goal | null }
+export type LocalData = { items: Item[]; snapshots: Snapshot[]; events: ItemEvent[]; goals: Goal[] }
 export type LocalBackup = { format: 'networth-backup'; version: number; exportedAt: string; data: LocalData }
 
 function openDb(): Promise<IDBDatabase> {
@@ -68,7 +68,7 @@ export async function readLocalData(): Promise<LocalData> {
       items: (items.result as Item[]).sort((a, b) => b.value_cents - a.value_cents),
       snapshots: (snapshots.result as (Snapshot & { id: string })[]).map(({ id: _id, ...snapshot }) => snapshot).sort((a, b) => a.month.localeCompare(b.month)),
       events: (events.result as ItemEvent[]).sort((a, b) => b.created_at.localeCompare(a.created_at)),
-      goal: (settings.result as { id: string; value: Goal }[]).find((s) => s.id === 'goal')?.value ?? null,
+      goals: (() => { const values = settings.result as { id: string; value: Goal | Goal[] }[]; const saved = values.find((s) => s.id === 'goals')?.value; if (Array.isArray(saved)) return saved; const legacy = values.find((s) => s.id === 'goal')?.value as Partial<Goal> | undefined; return legacy ? [{ id: 'legacy-goal', name: 'Savings goal', target_cents: legacy.target_cents ?? 0, allocated_cents: 0, target_date: legacy.target_date ?? null, note: legacy.note ?? null }] : [] })(),
     })
     tx.onerror = () => reject(tx.error)
   })
@@ -111,13 +111,13 @@ export async function deleteLocalItem(item: Item) {
   })
 }
 
-export async function saveLocalGoal(goal: Goal | null) {
+export async function saveLocalGoals(goals: Goal[]) {
   const db = await openDb()
   await new Promise<void>((resolve, reject) => {
     const tx = db.transaction('settings', 'readwrite')
     const store = tx.objectStore('settings')
-    if (goal) store.put({ id: 'goal', value: goal })
-    else store.delete('goal')
+    store.put({ id: 'goals', value: goals })
+    store.delete('goal')
     tx.oncomplete = () => resolve(); tx.onerror = () => reject(tx.error)
   })
 }
@@ -141,7 +141,14 @@ function validEvent(value: unknown): value is ItemEvent {
   const x = value as Partial<ItemEvent>
   return !!x && typeof x.id === 'string' && typeof x.item_id === 'string' && ['add', 'edit', 'delete'].includes(x.kind ?? '') && ['liquid', 'invest', 'physical', 'liab'].includes(x.cat ?? '') && typeof x.item_name === 'string' && x.item_name.length <= 120 && (x.before_cents === null || nonnegativeInt(x.before_cents)) && (x.after_cents === null || nonnegativeInt(x.after_cents)) && validIsoDate(x.created_at)
 }
-function validGoal(value: unknown): value is Goal | null {
+function validGoals(value: unknown): value is Goal[] {
+  if (!Array.isArray(value)) return false
+  return value.every((entry) => {
+  const x = entry as Partial<Goal>
+  return !!x && typeof x.id === 'string' && typeof x.name === 'string' && x.name.length > 0 && x.name.length <= 80 && typeof x.target_cents === 'number' && Number.isSafeInteger(x.target_cents) && x.target_cents > 0 && nonnegativeInt(x.allocated_cents) && (x.target_date === null || validCalendarDate(x.target_date)) && (x.note === null || typeof x.note === 'string' && x.note.length <= 200)
+  })
+}
+function validLegacyGoal(value: unknown) {
   if (value === null) return true
   const x = value as Partial<Goal>
   return !!x && Number.isSafeInteger(x.target_cents) && (x.target_date === null || validCalendarDate(x.target_date)) && (x.note === null || typeof x.note === 'string' && x.note.length <= 200)
@@ -151,7 +158,8 @@ export function parseBackup(text: string): LocalBackup {
   let value: unknown
   try { value = JSON.parse(text) } catch { throw new Error('This is not a valid JSON backup.') }
   const backup = value as Partial<LocalBackup>
-  if (backup.format !== 'networth-backup' || backup.version !== BACKUP_VERSION || !backup.data || !Array.isArray(backup.data.items) || !Array.isArray(backup.data.snapshots) || !Array.isArray(backup.data.events) || !backup.data.items.every(validItem) || !backup.data.snapshots.every(validSnapshot) || !backup.data.events.every(validEvent) || !validGoal(backup.data.goal)) throw new Error('This backup is not a supported NetWorth backup.')
+  if (backup.format !== 'networth-backup' || !backup.data || !Array.isArray(backup.data.items) || !Array.isArray(backup.data.snapshots) || !Array.isArray(backup.data.events) || !backup.data.items.every(validItem) || !backup.data.snapshots.every(validSnapshot) || !backup.data.events.every(validEvent) || !(backup.version === 2 && validGoals((backup.data as LocalData).goals) || backup.version === 1 && validLegacyGoal((backup.data as { goal?: unknown }).goal))) throw new Error('This backup is not a supported NetWorth backup.')
+  if (backup.version === 1) { const legacy = (backup.data as { goal?: Partial<Goal> }).goal; ;(backup as LocalBackup).data.goals = legacy ? [{ id: 'legacy-goal', name: 'Savings goal', target_cents: legacy.target_cents ?? 0, allocated_cents: 0, target_date: legacy.target_date ?? null, note: legacy.note ?? null }] : [] }
   return backup as LocalBackup
 }
 
@@ -163,7 +171,7 @@ export async function replaceLocalData(data: LocalData) {
     for (const item of data.items) tx.objectStore('items').put(item)
     for (const snapshot of data.snapshots) tx.objectStore('snapshots').put({ ...snapshot, id: snapshot.month })
     for (const event of data.events) tx.objectStore('events').put(event)
-    if (data.goal) tx.objectStore('settings').put({ id: 'goal', value: data.goal })
+    tx.objectStore('settings').put({ id: 'goals', value: data.goals })
     tx.oncomplete = () => resolve(); tx.onerror = () => reject(tx.error)
   })
 }

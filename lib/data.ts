@@ -51,15 +51,15 @@ export async function getSnapshots(): Promise<Snapshot[]> {
  * `maybeSingle` rather than `single`: no goal is the normal state for a new
  * account, and `single` treats zero rows as an error to be thrown.
  */
-export async function getGoal(): Promise<Goal | null> {
+export async function getGoals(): Promise<Goal[]> {
   const supabase = await createClient()
   const { data, error } = await supabase
     .from('goals')
-    .select('target_cents, target_date, note')
-    .maybeSingle()
+    .select('id, name, target_cents, allocated_cents, target_date, note')
+    .order('created_at', { ascending: true })
 
-  if (error) throw new Error(`Could not load your goal: ${error.message}`)
-  return (data as Goal | null) ?? null
+  if (error) throw new Error(`Could not load your goals: ${error.message}`)
+  return (data ?? []) as Goal[]
 }
 
 /**
