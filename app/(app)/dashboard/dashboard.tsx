@@ -31,10 +31,13 @@ export function Dashboard({
   items,
   snapshots,
   goal,
+  basePath = '',
 }: {
   items: Item[]
   snapshots: Snapshot[]
   goal: Goal | null
+  /** Prefix used by the browser-only workspace. */
+  basePath?: string
 }) {
   const { theme } = useTheme()
   const P = PALETTE[theme]
@@ -187,7 +190,7 @@ export function Dashboard({
         </div>
       ) : (
         <div style={{ marginTop: 18 }}>
-          <Link href="/goal" className="nw-hover-accent" style={{ fontSize: 14.5 }}>
+          <Link href={`${basePath}/goal`} className="nw-hover-accent" style={{ fontSize: 14.5 }}>
             Set a goal →
           </Link>
         </div>
@@ -427,7 +430,7 @@ export function Dashboard({
               <button
                 key={c.id}
                 type="button"
-                onClick={() => router.push(`/category/${c.id}`)}
+                onClick={() => router.push(`${basePath}/category/${c.id}`)}
                 className="nw-cat-card"
               >
                 <div

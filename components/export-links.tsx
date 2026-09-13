@@ -43,6 +43,9 @@ export function ExportLinks() {
       <a href="/export?kind=history" download style={{ fontSize: 14.5 }}>
         Monthly history (CSV)
       </a>
+      <a href="/export?kind=backup" download style={{ fontSize: 14.5 }}>
+        Full backup (JSON)
+      </a>
       <div style={{ fontSize: 13.5, color: 'var(--nw-faint)' }}>
         Your data, in a format any spreadsheet opens.
       </div>

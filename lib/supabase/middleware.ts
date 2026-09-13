@@ -2,7 +2,10 @@ import { createServerClient } from '@supabase/ssr'
 import { NextResponse, type NextRequest } from 'next/server'
 
 /** Paths reachable without a session. Everything else requires one. */
-const PUBLIC_PATHS = ['/login', '/signup', '/auth']
+// `/local` is intentionally outside the account boundary. It never reads or
+// writes Supabase; guarding it with a cloud session would defeat local-only
+// mode before the browser can open its IndexedDB database.
+const PUBLIC_PATHS = ['/login', '/signup', '/auth', '/local']
 
 /**
  * Refreshes the Supabase session on every request and guards private routes.
@@ -19,6 +22,13 @@ const PUBLIC_PATHS = ['/login', '/signup', '/auth']
  *     old access token expires.
  */
 export async function updateSession(request: NextRequest) {
+  // Local-only pages must not even refresh a Supabase session: they are a
+  // standalone IndexedDB app, and contacting Auth would invalidate their
+  // privacy promise (and make them depend on a cloud service being online).
+  if (request.nextUrl.pathname === '/local' || request.nextUrl.pathname.startsWith('/local/')) {
+    return NextResponse.next({ request })
+  }
+
   let supabaseResponse = NextResponse.next({ request })
 
   const supabase = createServerClient(

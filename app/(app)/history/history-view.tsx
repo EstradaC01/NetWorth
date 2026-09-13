@@ -4,6 +4,7 @@ import { useMemo, useState } from 'react'
 import { useTheme } from '@/components/theme'
 import { ActivityFeed } from '@/components/activity-feed'
 import { ExportLinks } from '@/components/export-links'
+import { CloudImport } from '@/components/cloud-import'
 import { CATS, PALETTE } from '@/lib/categories'
 import { fmt, short } from '@/lib/money'
 import { extent, gridLines, path } from '@/lib/chart'
@@ -32,10 +33,13 @@ export function HistoryView({
   items,
   snapshots,
   events,
+  localOnly = false,
 }: {
   items: Item[]
   snapshots: Snapshot[]
   events: ItemEvent[]
+  /** Local workspaces use their own browser-side backup controls. */
+  localOnly?: boolean
 }) {
   const { theme } = useTheme()
   const P = PALETTE[theme]
@@ -368,7 +372,7 @@ export function HistoryView({
       {/* Both sit outside the `enoughData` branch: a user with a single
           month still has edits worth reviewing and data worth exporting. */}
       <ActivityFeed events={events} />
-      <ExportLinks />
+      {!localOnly && <><ExportLinks /><CloudImport /></>}
     </div>
   )
 }

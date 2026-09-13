@@ -1,11 +1,7 @@
-import { redirect } from 'next/navigation'
-import { createClient } from '@/lib/supabase/server'
+'use client'
 
-export default async function Home() {
-  const supabase = await createClient()
-  const {
-    data: { user },
-  } = await supabase.auth.getUser()
+import Link from 'next/link'
 
-  redirect(user ? '/dashboard' : '/login')
+export default function Home() {
+  return <main style={{ minHeight: '100vh', maxWidth: 900, margin: '0 auto', padding: 'clamp(40px,8vw,96px) clamp(20px,5vw,48px)' }}><div style={{ fontSize: 12, letterSpacing: '.16em', textTransform: 'uppercase', color: 'var(--nw-faint)' }}>NetWorth · choose your storage</div><h1 style={{ fontSize: 'clamp(38px,7vw,68px)', letterSpacing: '-.04em', maxWidth: '12ch', margin: '18px 0' }}>Your money. Your choice.</h1><p style={{ color: 'var(--nw-muted)', fontSize: 17, lineHeight: 1.5, maxWidth: '55ch' }}>Track your net worth entirely on this device, or create an account to keep a securely synced copy across devices.</p><div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit,minmax(260px,1fr))', gap: 18, marginTop: 42 }}><section style={{ border: '1px solid var(--nw-line)', borderRadius: 'var(--radius-md)', padding: 26 }}><h2 style={{ marginTop: 0 }}>Keep it local</h2><p style={{ color: 'var(--nw-muted)', lineHeight: 1.5 }}>No account. Financial records stay in this browser on this device and are never uploaded. Download JSON backups so you remain in control.</p><Link className="nw-btn-primary" href="/local/dashboard" style={{ display: 'inline-block', marginTop: 10, padding: '11px 16px' }}>Use local-only mode</Link></section><section style={{ border: '1px solid var(--nw-line)', borderRadius: 'var(--radius-md)', padding: 26 }}><h2 style={{ marginTop: 0 }}>Use a synced account</h2><p style={{ color: 'var(--nw-muted)', lineHeight: 1.5 }}>Sign in to save data securely in your account and access it on your other devices. You can still export a portable backup at any time.</p><Link className="nw-btn-outline" href="/login" style={{ display: 'inline-block', marginTop: 10, padding: '11px 16px' }}>Sign in or create account</Link></section></div><p style={{ color: 'var(--nw-faint)', fontSize: 13.5, marginTop: 28 }}>Local mode is private from NetWorth, but anyone with access to this unlocked browser profile can view it.</p></main>
 }

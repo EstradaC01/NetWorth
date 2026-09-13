@@ -2,11 +2,27 @@
 
 A personal net-worth tracker in Philippine pesos. Cash, investments, property
 and debt on one page, with month-by-month history, a savings goal, an activity
-log and CSV export.
+log and portable backups.
 
 Next.js (App Router) · Supabase Postgres + Auth · TypeScript.
 The visual design is the **Broadsheet** design system, vendored unchanged in
 `public/broadsheet/styles.css`.
+
+## Storage choices
+
+NetWorth opens with an explicit choice:
+
+- **Local-only mode** (`/local/dashboard`) stores items, snapshots, goals and
+  activity exclusively in the browser's IndexedDB database. It does not
+  require an account or call Supabase. Use the History page to download or
+  restore a versioned JSON backup. Clearing browser/site data can erase the
+  local workspace, so backups are important. This mode is private from the
+  site operator, not from someone who can use the same unlocked browser
+  profile.
+- **Synced account mode** keeps the existing Supabase account and Row Level
+  Security model for access across devices. It supports CSV reports, a full
+  JSON export, and a deliberate import of a local JSON backup. Local data is
+  never uploaded automatically.
 
 ## Running it locally
 

@@ -16,6 +16,9 @@ export function SignupForm() {
         Create account
       </h2>
       <AuthSwitch prompt="Already have one?" href="/login" label="Sign in." />
+      <p style={{ color: 'var(--nw-muted)', fontSize: 14, margin: '-18px 0 24px' }}>
+        Prefer no account? <a href="/local/dashboard">Use local-only mode.</a>
+      </p>
 
       <div style={{ display: 'flex', flexDirection: 'column', gap: 18 }}>
         <label style={{ display: 'block' }}>

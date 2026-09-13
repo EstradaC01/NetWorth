@@ -81,6 +81,35 @@ export async function getItemEvents(limit = 60): Promise<ItemEvent[]> {
   return (data ?? []) as ItemEvent[]
 }
 
+/** Every event for a portable account backup. PostgREST caps a single
+ * response, so this deliberately walks pages rather than silently truncating
+ * a long-running activity log. */
+export async function getAllItemEvents(): Promise<ItemEvent[]> {
+  const supabase = await createClient()
+  const pageSize = 1000
+  const events: ItemEvent[] = []
+  let from = 0
+  let total: number | null = null
+  while (total === null || from < total) {
+    const { data, error, count } = await supabase
+      .from('item_events')
+      .select('id, item_id, kind, cat, item_name, before_cents, after_cents, created_at', { count: 'exact' })
+      .order('created_at', { ascending: false })
+      .order('id', { ascending: false })
+      .range(from, from + pageSize - 1)
+    if (error) throw new Error(`Could not load activity: ${error.message}`)
+    const page = (data ?? []) as ItemEvent[]
+    total ??= count
+    events.push(...page)
+    if (events.length >= (total ?? 0)) return events
+    // A row limit smaller than the requested range is normal; advance by
+    // what PostgREST actually returned so no rows are skipped or truncated.
+    if (page.length === 0) throw new Error('Could not load all activity events.')
+    from += page.length
+  }
+  return events
+}
+
 /**
  * Records (or corrects) the current month's snapshot from live item totals.
  *

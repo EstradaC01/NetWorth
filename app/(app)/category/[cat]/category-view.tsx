@@ -9,15 +9,18 @@ import { categoryById, PALETTE, type CategoryId } from '@/lib/categories'
 import { fmt } from '@/lib/money'
 import { formatItemDate } from '@/lib/dates'
 import { totalsFrom, type Item } from '@/lib/types'
+import { useOptionalLocalData } from '@/components/local-data'
 
 const MONO = "'IBM Plex Mono',monospace"
 
 export function CategoryView({
   cat,
   items,
+  basePath,
 }: {
   cat: CategoryId
   items: Item[]
+  basePath?: string
 }) {
   const { theme } = useTheme()
   const P = PALETTE[theme]
@@ -25,6 +28,7 @@ export function CategoryView({
   const [pending, startTransition] = useTransition()
   const [removing, setRemoving] = useState<Set<string>>(new Set())
   const [error, setError] = useState<string | null>(null)
+  const local = useOptionalLocalData()
 
   const category = categoryById(cat)
   const totals = useMemo(() => totalsFrom(items), [items])
@@ -38,6 +42,10 @@ export function CategoryView({
     setError(null)
     setRemoving((prev) => new Set(prev).add(item.id))
     startTransition(async () => {
+      if (local) {
+        await local.deleteItem(item)
+        return
+      }
       const res = await deleteItem(item.id)
       if (res.error) {
         // Put it back — the row still exists on the server.
@@ -54,7 +62,7 @@ export function CategoryView({
   return (
     <div style={{ animation: 'nwIn .28s ease both' }}>
       <Link
-        href="/dashboard"
+        href={`${basePath ?? ''}/dashboard`}
         className="nw-hover-accent"
         style={{
           display: 'inline-block',

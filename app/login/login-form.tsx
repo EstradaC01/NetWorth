@@ -16,6 +16,9 @@ export function LoginForm({ next }: { next?: string }) {
         Sign in
       </h2>
       <AuthSwitch prompt="No account?" href="/signup" label="Create one." />
+      <p style={{ color: 'var(--nw-muted)', fontSize: 14, margin: '-18px 0 24px' }}>
+        Prefer no account? <a href="/local/dashboard">Use local-only mode.</a>
+      </p>
 
       <input type="hidden" name="next" value={next ?? '/dashboard'} />
 
